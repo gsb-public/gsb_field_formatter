@@ -1,0 +1,145 @@
+<?php
+
+// Formatter
+
+/**
+ * Implementation of hook_field_formatter_info().
+ *
+ * Here we tell Drupal about our custom field formatter -
+ * 'gsb_field_formatter_default_format'.
+ *
+ */
+function gsb_field_formatter_field_formatter_info() {
+  return array(
+    'gsb_field_formatter_default_format' => array(
+      'label' => t('GSB Field Formatter'),
+      'field types' => array('file'),
+      'settings' => array('view_mode' => 'full'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+
+  $element[0] = array(
+    '#theme' => 'field_formatter_items',
+    '#items' => $items,
+  );
+
+  return $element;
+}
+
+// Formatter Settings Form
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function gsb_field_formatter_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $element = array();
+
+  if ($display['type'] == 'gsb_field_formatter_default_format') {
+    $element['view_mode'] = array(
+      '#title'   => t('View mode'),
+      '#type'    => 'select',
+      '#options' => file_entity_view_mode_labels(),
+      '#default_value' => $settings['view_mode'],
+    );
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function gsb_field_formatter_field_formatter_settings_summary($field, $instance, $view_mode) {
+
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $summary = t('View Mode: @viewmode', array('@viewmode' => $settings['view_mode']));
+
+  return $summary;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function gsb_field_formatter_theme($existing, $type, $theme, $path) {
+
+  return array(
+    'field_formatter_items' => array(
+      'variables' => array(
+        'items' => array(),
+      )
+    ),
+  );
+
+}
+
+function theme_field_formatter_items(&$variables) {
+
+  $output = "";
+
+  $type = $variables['items'][0]['type'];
+
+  $image = file_view((object) $variables['items'][0], 'default');
+
+  if ($type == 'image') {
+
+    // Render the image
+
+    $output = render($image);
+
+  }
+  elseif ($type == 'video') {
+
+    // Get the video path.
+
+    $item = $variables['items'][0];
+
+    $video_path = drupal_realpath($type = $item['uri']);
+
+    // If it's a youtube video we need to use the embed url.
+
+    if ($item['filemime'] == 'video/youtube') {
+      $video_parts = drupal_parse_url($video_path);
+      if (stristr($video_parts['path'], 'watch')) {
+        $video_path = str_replace('watch', 'embed', $video_parts['path']) . "/" . $video_parts['query']['v'];
+      }
+      $video_path .= '?autoplay=1';
+    }
+
+    // Create the image.
+
+    $img_tag = theme_image_style(array(
+      'style_name' => $image['file']['#style_name'],
+      'path' => $image['file']['#path'],
+      'alt' => $item['filename'],
+      'width' => NULL,
+      'height' => NULL
+    ));
+
+    // Print a link wrapper so that it can open in a modal.
+
+    $output = '<div class="field field-type-image field-name-field-gsb-spotlight-media">';
+    $output .=  l($img_tag, $video_path, array('attributes' => array('class' => 'fancybox fancybox.iframe'), 'html' => TRUE));
+    $output .=  '<span class="video-play-icon"></span></div>';
+
+  }
+
+  return $output;
+
+}
+
+
+
+
+
