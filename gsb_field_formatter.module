@@ -7,14 +7,13 @@
 
 /**
  * Implements hook_field_formatter_info().
- *
  */
 function gsb_field_formatter_field_formatter_info() {
   return array(
     'gsb_field_formatter_default_format' => array(
       'label' => t('GSB Field Formatter'),
       'field types' => array('image', 'file'),
-      'settings' => array('view_mode' => 'full'),
+      'settings' => array('file_view_mode' => 'default'),
     ),
   );
 }
@@ -23,10 +22,34 @@ function gsb_field_formatter_field_formatter_info() {
  * Implements hook_field_formatter_view().
  */
 function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $element[0] = array(
-    '#theme' => 'gsb_field_formatter_items',
-    '#items' => $items,
-  );
+  $element = array();
+
+  switch ($display['type']) {
+    case 'gsb_field_formatter_default_format':
+      // Spoof the file_rendered formatter.
+      $display['type'] = 'file_rendered';
+      $main_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display);
+      foreach ($main_element as $delta => $item) {
+        $element[$delta]['main'] = $item;
+      }
+
+      // Find all videos.
+      $video_items = array();
+      foreach ($items as $delta => $item) {
+        if ($item['type'] == 'video') {
+          $video_items[$delta] = $item;
+        }
+      }
+      if ($video_items) {
+        // Add a preview image for each video.
+        $display['settings']['file_view_mode'] = 'preview';
+        $video_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $video_items, $display);
+        foreach ($video_element as $delta => $item) {
+          $element[$delta]['preview'] = $item;
+        }
+      }
+      break;
+  }
 
   return $element;
 }
@@ -35,18 +58,14 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
  * Implements hook_field_formatter_settings_form().
  */
 function gsb_field_formatter_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
-  $display = $instance['display'][$view_mode];
-  $settings = $display['settings'];
-
   $element = array();
 
-  if ($display['type'] == 'gsb_field_formatter_default_format') {
-    $element['view_mode'] = array(
-      '#title'   => t('View mode'),
-      '#type'    => 'select',
-      '#options' => file_entity_view_mode_labels(),
-      '#default_value' => $settings['view_mode'],
-    );
+  switch ($instance['display'][$view_mode]['type']) {
+    case 'gsb_field_formatter_default_format':
+      // Spoof the file_rendered formatter.
+      $instance['display'][$view_mode]['type'] = 'file_rendered';
+      $element = file_entity_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
+      break;
   }
 
   return $element;
@@ -56,71 +75,22 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
  * Implements hook_field_formatter_settings_summary().
  */
 function gsb_field_formatter_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $summary = '';
 
-  $display = $instance['display'][$view_mode];
-  $settings = $display['settings'];
-
-  $summary = t('View Mode: @viewmode', array('@viewmode' => $settings['view_mode']));
+  switch ($instance['display'][$view_mode]['type']) {
+    case 'gsb_field_formatter_default_format':
+      // Spoof the file_rendered formatter.
+      $instance['display'][$view_mode]['type'] = 'file_rendered';
+      $summary = file_entity_field_formatter_settings_summary($field, $instance, $view_mode);
+  }
 
   return $summary;
 }
 
 /**
- * Implements hook_theme().
+ * Implements hook_preprocess_HOOK() for file_entity.tpl.php.
  */
-function gsb_field_formatter_theme($existing, $type, $theme, $path) {
-  return array(
-    'gsb_field_formatter_items' => array(
-      'variables' => array(
-        'items' => array(),
-      )
-    ),
-  );
-}
-
-/**
- * Returns HTML for images and videos.
- */
-function theme_gsb_field_formatter_items(&$variables) {
-  $output = "";
-
-  $type = $variables['items'][0]['type'];
-
-  $image = file_view((object) $variables['items'][0], 'default');
-
-  if ($type == 'image') {
-    // Render the image
-    $output = render($image);
-  }
-  elseif ($type == 'video') {
-    // Get the video path.
-    $item = $variables['items'][0];
-
-    $video_path = drupal_realpath($type = $item['uri']);
-
-    // If it's a youtube video we need to use the embed url.
-    if ($item['filemime'] == 'video/youtube') {
-      $video_parts = drupal_parse_url($video_path);
-      if (stristr($video_parts['path'], 'watch')) {
-        $video_path = str_replace('watch', 'embed', $video_parts['path']) . "/" . $video_parts['query']['v'];
-      }
-      $video_path .= '?autoplay=1';
-    }
-
-    // Create the image.
-    $img_tag = theme('image_style', array(
-      'style_name' => $image['file']['#style_name'],
-      'path' => $image['file']['#path'],
-      'alt' => $item['filename'],
-      'width' => NULL,
-      'height' => NULL
-    ));
-
-    // Print a link wrapper so that it can open in a modal.
-    $output = '<div class="field field-type-image field-name-field-gsb-spotlight-media">';
-    $output .=  l($img_tag, $video_path, array('attributes' => array('class' => 'fancybox fancybox.iframe'), 'html' => TRUE));
-    $output .=  '<span class="video-play-icon"></span></div>';
-  }
-
-  return $output;
+function gsb_field_formatter_preprocess_file_entity(&$variables) {
+  // Add a class denoting the file view mode.
+  $variables['classes_array'][] = 'file-' . $variables['type'] . '--' . $variables['view_mode'];
 }
