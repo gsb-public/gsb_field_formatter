@@ -13,7 +13,10 @@ function gsb_field_formatter_field_formatter_info() {
     'gsb_field_formatter_default_format' => array(
       'label' => t('GSB Field Formatter'),
       'field types' => array('image', 'file'),
-      'settings' => array('file_view_mode' => 'default'),
+      'settings' => array(
+        'file_view_mode' => 'default',
+        'preview_view_mode' => 'preview',
+      ),
     ),
   );
 }
@@ -60,11 +63,19 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
 function gsb_field_formatter_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
   $element = array();
 
-  switch ($instance['display'][$view_mode]['type']) {
+  $display = &$instance['display'][$view_mode];
+  switch ($display['type']) {
     case 'gsb_field_formatter_default_format':
       // Spoof the file_rendered formatter.
-      $instance['display'][$view_mode]['type'] = 'file_rendered';
+      $display['type'] = 'file_rendered';
       $element = file_entity_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
+      // Add a form element for preview view mode.
+      $element['preview_view_mode'] = array(
+        '#title' => t('Preview view mode'),
+        '#type' => 'select',
+        '#options' => file_entity_view_mode_labels(),
+        '#default_value' => $display['settings']['preview_view_mode'],
+      );
       break;
   }
 
@@ -77,11 +88,14 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
 function gsb_field_formatter_field_formatter_settings_summary($field, $instance, $view_mode) {
   $summary = '';
 
-  switch ($instance['display'][$view_mode]['type']) {
+  $display = &$instance['display'][$view_mode];
+  switch ($display['type']) {
     case 'gsb_field_formatter_default_format':
       // Spoof the file_rendered formatter.
-      $instance['display'][$view_mode]['type'] = 'file_rendered';
+      $display['type'] = 'file_rendered';
       $summary = file_entity_field_formatter_settings_summary($field, $instance, $view_mode);
+      $view_mode_label = file_entity_view_mode_label($display['settings']['preview_view_mode'], t('Unknown'));
+      $summary .= '<br>' . t('Preview view mode: %mode', array('%mode' => $view_mode_label));
   }
 
   return $summary;
