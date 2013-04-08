@@ -10,9 +10,9 @@
  */
 function gsb_field_formatter_field_formatter_info() {
   return array(
-    'gsb_field_formatter_default_format' => array(
-      'label' => t('GSB Field Formatter'),
-      'field types' => array('image', 'file'),
+    'gsb_field_formatter_responsive_video' => array(
+      'label' => t('GSB Responsive Video'),
+      'field types' => array('file'),
       'settings' => array(
         'file_view_mode' => 'default',
         'preview_view_mode' => 'preview',
@@ -28,7 +28,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
   $element = array();
 
   switch ($display['type']) {
-    case 'gsb_field_formatter_default_format':
+    case 'gsb_field_formatter_responsive_video':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
       $main_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display);
@@ -65,7 +65,7 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
 
   $display = &$instance['display'][$view_mode];
   switch ($display['type']) {
-    case 'gsb_field_formatter_default_format':
+    case 'gsb_field_formatter_responsive_video':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
       $element = file_entity_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
@@ -90,7 +90,7 @@ function gsb_field_formatter_field_formatter_settings_summary($field, $instance,
 
   $display = &$instance['display'][$view_mode];
   switch ($display['type']) {
-    case 'gsb_field_formatter_default_format':
+    case 'gsb_field_formatter_responsive_video':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
       $summary = file_entity_field_formatter_settings_summary($field, $instance, $view_mode);
