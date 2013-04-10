@@ -18,6 +18,14 @@ function gsb_field_formatter_field_formatter_info() {
         'preview_view_mode' => 'preview',
       ),
     ),
+    'gsb_field_formatter_field_collection_separator' => array(
+      'label' => t('Fields with a separator'),
+      'field types' => array('field_collection'),
+      'settings' =>  array(
+        'view_mode' => 'full',
+        'separator' => ', ',
+      ),
+    ),
   );
 }
 
@@ -52,6 +60,19 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         }
       }
       break;
+
+    case 'gsb_field_formatter_field_collection_separator':
+      $view_mode = !empty($settings['view_mode']) ? $settings['view_mode'] : 'full';
+      $count = count($items);
+      foreach ($items as $delta => $item) {
+        if ($field_collection = field_collection_field_get_entity($item)) {
+          $element[$delta]['entity'] = $field_collection->view($view_mode);
+          if ($delta != $count - 1) {
+            $element[$delta]['#suffix'] = check_plain($display['settings']['separator']);
+          }
+        }
+      }
+      break;
   }
 
   return $element;
@@ -64,6 +85,7 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
   $element = array();
 
   $display = &$instance['display'][$view_mode];
+  $settings = $display['settings'];
   switch ($display['type']) {
     case 'gsb_field_formatter_responsive_video':
       // Spoof the file_rendered formatter.
@@ -74,7 +96,30 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
         '#title' => t('Preview view mode'),
         '#type' => 'select',
         '#options' => file_entity_view_mode_labels(),
-        '#default_value' => $display['settings']['preview_view_mode'],
+        '#default_value' => $settings['preview_view_mode'],
+      );
+      break;
+
+    case 'gsb_field_formatter_field_collection_separator':
+      $entity_type = entity_get_info('field_collection_item');
+      $options = array();
+      foreach ($entity_type['view modes'] as $mode => $info) {
+        $options[$mode] = $info['label'];
+      }
+
+      $element['view_mode'] = array(
+        '#type' => 'select',
+        '#title' => t('View mode'),
+        '#options' => $options,
+        '#default_value' => $settings['view_mode'],
+        '#description' => t('Select the view mode'),
+      );
+
+      $element['separator'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Separator'),
+        '#default_value' => $settings['separator'],
+        '#description' => t('Choose a separator, include any spaces'),
       );
       break;
   }
@@ -89,13 +134,25 @@ function gsb_field_formatter_field_formatter_settings_summary($field, $instance,
   $summary = '';
 
   $display = &$instance['display'][$view_mode];
+  $settings = $display['settings'];
   switch ($display['type']) {
     case 'gsb_field_formatter_responsive_video':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
       $summary = file_entity_field_formatter_settings_summary($field, $instance, $view_mode);
-      $view_mode_label = file_entity_view_mode_label($display['settings']['preview_view_mode'], t('Unknown'));
+      $view_mode_label = file_entity_view_mode_label($settings['preview_view_mode'], t('Unknown'));
       $summary .= '<br>' . t('Preview view mode: %mode', array('%mode' => $view_mode_label));
+      break;
+
+    case 'gsb_field_formatter_field_collection_separator':
+      $entity_type = entity_get_info('field_collection_item');
+      if (!empty($entity_type['view modes'][$settings['view_mode']]['label'])) {
+        $output[] =  t('View mode: @mode', array('@mode' => $entity_type['view modes'][$settings['view_mode']]['label']));
+      }
+      $output[] = t('Separator: "%separator"', array('%separator' => $settings['separator']));
+
+      $summary = implode('<br>', $output);
+      break;
   }
 
   return $summary;
