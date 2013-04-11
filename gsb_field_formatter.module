@@ -26,6 +26,10 @@ function gsb_field_formatter_field_formatter_info() {
         'separator' => ', ',
       ),
     ),
+    'gsb_field_formatter_spotlight_fid_to_image' => array(
+      'label' => t('Spotlight FID to Image'),
+      'field types' => array('text', 'number_integer'),
+    ),
   );
 }
 
@@ -93,6 +97,20 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           if ($delta != $count - 1) {
             $element[$delta]['#suffix'] = '<span class="separator">' . check_plain($display['settings']['separator']) . '</span>';
           }
+        }
+      }
+      break;
+
+    case 'gsb_field_formatter_spotlight_fid_to_image':
+      foreach ($items as $delta => $item) {
+        if ($file = file_load($item['value'])) {
+          $element[$delta] = array(
+            '#theme' => 'image_formatter',
+            '#item' => array(
+              'uri' => $file->uri,
+            ),
+            '#image_style' => '270x158',
+          );
         }
       }
       break;
