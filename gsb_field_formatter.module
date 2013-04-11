@@ -91,7 +91,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         if ($field_collection = field_collection_field_get_entity($item)) {
           $element[$delta]['entity'] = $field_collection->view($view_mode);
           if ($delta != $count - 1) {
-            $element[$delta]['#suffix'] = check_plain($display['settings']['separator']);
+            $element[$delta]['#suffix'] = '<span class="separator">' . check_plain($display['settings']['separator']) . '</span>';
           }
         }
       }
