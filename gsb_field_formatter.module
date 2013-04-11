@@ -56,6 +56,29 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         $display['settings']['file_view_mode'] = 'preview';
         $video_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $video_items, $display);
         foreach ($video_element as $delta => $item) {
+          // Transform the stream wrapper into a path.
+          $path = drupal_realpath($video_items[$delta]['uri']);
+          // Parse the URL into parts, in order to make it an embed URL.
+          $video_parts = drupal_parse_url($path);
+          $embed = str_replace('watch', 'embed', $video_parts['path']) . '/' . $video_parts['query']['v'];
+          // Wrap the image in a link to trigger fancybox.
+          $item['wrapper'] = array(
+            '#type' => 'link',
+            '#title' => drupal_render($item['file']),
+            '#href' => $embed,
+            '#options' => array(
+              'html' => TRUE,
+              'query' => array(
+                'autoplay' => 1,
+              ),
+              'attributes' => array(
+                'class' => array(
+                  'fancybox',
+                  'fancybox.iframe',
+                ),
+              ),
+            ),
+          );
           $element[$delta]['preview'] = $item;
         }
       }
