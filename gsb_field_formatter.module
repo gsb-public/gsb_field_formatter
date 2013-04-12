@@ -206,3 +206,41 @@ function gsb_field_formatter_preprocess_file_entity(&$variables) {
   // Add a class denoting the file view mode.
   $variables['classes_array'][] = 'file-' . $variables['type'] . '--' . $variables['view_mode'];
 }
+
+/**
+ * Implements hook_field_group_formatter_info().
+ */
+function gsb_field_formatter_field_group_formatter_info() {
+  return array(
+    'display' => array(
+      'gsb_field_formatter_group_comma_separator' => array(
+        'label' => t('Comma separated'),
+        'description' => t('Separate each field by a comma'),
+        'format_types' => array('open'),
+        'instance_settings' => array('show_label' => 1, 'label_element' => 'h3', 'classes' => ''),
+        'default_formatter' => 'open',
+      ),
+    ),
+  );
+}
+
+/**
+ * #pre_render for gsb_field_formatter_group_comma_separator.
+ */
+function field_group_pre_render_gsb_field_formatter_group_comma_separator(&$element, $group, &$form) {
+  // Sort and count all fields in this group.
+  $children = element_children($element, TRUE);
+  $end = count($children) - 1;
+  foreach ($children as $delta => $key) {
+    // Skip the last item.
+    if ($delta != $end) {
+      // Ensure that there is a suffix first.
+      if (!isset($element[$key]['#suffix'])) {
+        $element[$key]['#suffix'] = '';
+      }
+      // Add a comma separator.
+      $element[$key]['#suffix'] .= '<span class="separator">, </span>';
+    }
+  }
+  field_group_pre_render_div($element, $group, $form);
+}
