@@ -45,7 +45,15 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       $display['type'] = 'file_rendered';
       $main_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display);
       foreach ($main_element as $delta => $item) {
-        $element[$delta]['main'] = $item;
+        $element[$delta]['main'] = array(
+          '#type' => 'container',
+          '#attributes' => array(
+            'class' => array(
+              'gsb-responsive-main',
+            ),
+          ),
+          'item' => $item,
+        );
       }
 
       // Find all videos.
@@ -83,7 +91,16 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
               ),
             ),
           );
-          $element[$delta]['preview'] = $item;
+
+          $element[$delta]['preview'] = array(
+            '#type' => 'container',
+            '#attributes' => array(
+              'class' => array(
+                'gsb-responsive-preview',
+              ),
+            ),
+            'item' => $item,
+          );
         }
       }
       break;
