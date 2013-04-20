@@ -34,6 +34,10 @@ function gsb_field_formatter_field_formatter_info() {
       'label' => t('City, State'),
       'field types' => array('addressfield'),
     ),
+    'gsb_field_formatter_address_no_country' => array(
+      'label' => t('Full Address (no country)'),
+      'field types' => array('addressfield'),
+    ),
   );
 }
 
@@ -142,6 +146,39 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         if (!empty($item['administrative_area']) && !empty($item['locality'])) {
           $element[$delta]['#markup'] = $item['locality'] . ', ' . $item['administrative_area'];
         }
+      }
+      break;
+
+    case 'gsb_field_formatter_address_no_country':
+      foreach ($items as $delta => $item) {
+        // Address line 1.
+        if (!empty($item['thoroughfare'])) {
+          $address['first_line'] = $item['thoroughfare'];
+        }
+        // Address line 2.
+        if (!empty($item['premise'])) {
+          $address['second_line'] = $item['premise'];
+        }
+        // City, State Zip
+        $address['third_line'] = '';
+        if (!empty($item['locality'])) {
+          // City.
+          $address['third_line'] .= $item['locality'];
+          // If there is either a city or zip, add a comma.
+          if (!empty($item['administrative_area']) || !empty($item['postal_code'])) {
+            $address['third_line'] .= ',';
+          }
+        }
+        // State.
+        if (!empty($item['administrative_area'])) {
+          $address['third_line'] .= ' ' . $item['administrative_area'];
+        }
+        // Zip.
+        if (!empty($item['postal_code'])) {
+          $address['third_line'] .= ' ' . $item['postal_code'];
+        }
+        // Combine all three lines.
+        $element[$delta]['#markup'] = implode('<br>', array_filter($address));
       }
       break;
   }
