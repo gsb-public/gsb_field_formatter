@@ -138,6 +138,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
 
     case 'gsb_field_formatter_address_city_state':
       foreach ($items as $delta => $item) {
+        // Only show city, state if both are present.
         if (!empty($item['administrative_area']) && !empty($item['locality'])) {
           $element[$delta]['#markup'] = $item['locality'] . ', ' . $item['administrative_area'];
         }
