@@ -4,3 +4,10 @@ package = GSB
 version = 7.x-1.0
 project = gsb_field_formatter
 dependencies[] = file_entity
+
+
+; Information added by drush on 2013-04-20
+version = "master-dev"
+project = "gsb_field_formatter"
+datestamp = "1366509162"
+

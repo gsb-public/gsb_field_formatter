@@ -84,7 +84,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           // Wrap the image in a link to trigger fancybox.
           $item['wrapper'] = array(
             '#type' => 'link',
-            '#title' => drupal_render($item['file']),
+            '#title' => drupal_render($item['file']) . '<span class="video-play-icon"></span>',
             '#href' => $embed,
             '#options' => array(
               'html' => TRUE,
