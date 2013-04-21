@@ -124,6 +124,14 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           }
         }
       }
+      if (!empty($element)) {
+        $element['#type'] = 'container';
+        $element['#attributes'] = array(
+          'class' => array(
+            'gsb_field_formatter_field_collection_separator',
+          ),
+        );
+      }
       break;
 
     case 'gsb_field_formatter_spotlight_fid_to_image':
