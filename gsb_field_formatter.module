@@ -73,7 +73,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       }
       if ($video_items) {
         // Add a preview image for each video.
-        $display['settings']['file_view_mode'] = 'preview';
+        $display['settings']['file_view_mode'] = $display['settings']['preview_view_mode'];
         $video_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $video_items, $display);
         foreach ($video_element as $delta => $item) {
           // Transform the stream wrapper into a path.
