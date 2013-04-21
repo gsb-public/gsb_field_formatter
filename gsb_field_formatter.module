@@ -139,7 +139,9 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         if ($file = file_load($item['value'])) {
           $element[$delta] = array(
             '#theme' => 'image_formatter',
-            '#path' => $file->uri,
+            '#item' => array(
+              'uri' => $file->uri,
+            ),
             '#image_style' => '270x158',
           );
         }
