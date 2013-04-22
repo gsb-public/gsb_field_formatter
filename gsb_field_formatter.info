@@ -11,3 +11,10 @@ version = "master-dev"
 project = "gsb_field_formatter"
 datestamp = "1366509162"
 
+
+
+; Information added by drush on 2013-04-21
+version = "master-dev"
+project = "gsb_field_formatter"
+datestamp = "1366595976"
+
