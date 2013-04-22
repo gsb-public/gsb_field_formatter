@@ -195,13 +195,13 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       break;
     case 'gsb_field_formatter_node_title_link':
       foreach ($items as $delta => $item) {
-        $element[$delta][]['#markup'] = '<h2>';
+        $element[$delta][]['#markup'] = '<h5>';
         $element[$delta][] = array(
                 '#type' => 'link',
                 '#href' => $item['url'],
                 '#title' => check_plain($entity->title)
             );
-        $element[$delta][]['#markup'] = '</h2>';
+        $element[$delta][]['#markup'] = '</h5>';
       }
       break;
   }
