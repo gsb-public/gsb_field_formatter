@@ -340,7 +340,11 @@ function gsb_field_formatter_field_group_format_settings($group) {
         return $field_info['type'] == 'link_field';
       });
       // Find all instances that match the link fields.
-      $options = array_intersect_key(field_info_instances($group->entity_type, $group->bundle), $fields);
+      $instances = array_intersect_key(field_info_instances($group->entity_type, $group->bundle), $fields);
+      // Retrieve the labels from the instances.
+      $options = array_map(function ($instance) {
+        return $instance['label'];
+      }, $instances);
 
       $form['instance_settings']['field_name'] = array(
         '#type' => 'select',
