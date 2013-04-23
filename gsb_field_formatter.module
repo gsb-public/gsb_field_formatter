@@ -317,8 +317,61 @@ function gsb_field_formatter_field_group_formatter_info() {
         'instance_settings' => array('show_label' => 1, 'label_element' => 'h3', 'classes' => ''),
         'default_formatter' => 'open',
       ),
+      'gsb_field_formatter_group_link_to_field' => array(
+        'label' => t('Link to field'),
+        'description' => t('Link the group based on the value of another field'),
+        'format_types' => array('open'),
+        'instance_settings' => array('field_name' => ''),
+        'default_formatter' => 'open',
+      ),
     ),
   );
+}
+
+/**
+ * Implements hook_field_group_format_settings().
+ */
+function gsb_field_formatter_field_group_format_settings($group) {
+  $form = array();
+  switch ($group->format_type) {
+    case 'gsb_field_formatter_group_link_to_field':
+      // Find all link fields.
+      $fields = array_filter(field_info_field_map(), function ($field_info) {
+        return $field_info['type'] == 'link_field';
+      });
+      // Find all instances that match the link fields.
+      $options = array_intersect_key(field_info_instances($group->entity_type, $group->bundle), $fields);
+
+      $form['instance_settings']['field_name'] = array(
+        '#type' => 'select',
+        '#title' => t('Field name'),
+        '#options' => $options,
+        '#default_value' => !empty($group->format_settings['instance_settings']['field_name']) ? $group->format_settings['instance_settings']['field_name'] : '',
+      );
+      break;
+  }
+  return $form;
+}
+
+/**
+ * #pre_render for gsb_field_formatter_group_link_to_field.
+ */
+function field_group_pre_render_gsb_field_formatter_group_link_to_field(&$element, $group, &$form) {
+  if (isset($group->format_settings['instance_settings']['field_name'])) {
+    $wrapper = entity_metadata_wrapper($group->entity_type, $form['#element']);
+    $field_name = $group->format_settings['instance_settings']['field_name'];
+    try {
+      $url = $wrapper->{$field_name}->url->value();
+      $element['#prefix'] = '<div class="' . $group->classes . '"><a href="' . $url . '">';
+      $element['#suffix'] = '</a></div>';
+      return;
+    }
+    catch (EntityMetadataWrapperException $e) {
+      // Use the fallback below.
+    }
+  }
+
+  field_group_pre_render_div($element, $group, $form);
 }
 
 /**
