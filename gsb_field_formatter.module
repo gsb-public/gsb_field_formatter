@@ -42,6 +42,15 @@ function gsb_field_formatter_field_formatter_info() {
       'label' => t('Node title link'),
       'field types' => array('link_field'),
     ),
+    'gsb_field_formatter_path_term_separator' => array(
+      'label' => t('Separated tags with custom path'),
+      'field types' => array('taxonomy_term_reference'),
+      'settings' =>  array(
+        'separator' => ', ',
+        'tid_or_name' => 'tid',
+        'path_prefix' => 'taxonomy/term',
+      ),
+    ),
   );
 }
 
@@ -50,6 +59,7 @@ function gsb_field_formatter_field_formatter_info() {
  */
 function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
+  $settings = $display['settings'];
 
   switch ($display['type']) {
     case 'gsb_field_formatter_responsive_video':
@@ -212,6 +222,17 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         );
       }
       break;
+
+    case 'gsb_field_formatter_path_term_separator':
+      $count = count($items);
+      foreach ($items as $delta => $item) {
+        $term = taxonomy_term_load($item['tid']);
+        $path = $settings['path_prefix'] . '/' . str_replace(' ', '-', strtolower($term->{$settings['tid_or_name']}));
+        $element[$delta]['#markup'] = l($term->name, $path);
+        if ($delta != $count - 1) {
+          $element[$delta]['#suffix'] = '<span class="separator">' . check_plain($settings['separator']) . '</span>';
+        }
+      }
   }
 
   return $element;
@@ -261,6 +282,31 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
         '#description' => t('Choose a separator, include any spaces'),
       );
       break;
+
+    case 'gsb_field_formatter_path_term_separator':
+      $element['path_prefix'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Path prefix'),
+        '#default_value' => $settings['path_prefix'],
+        '#description' => t('The prefix for the path, defaults to taxonomy/term'),
+      );
+      $element['tid_or_name'] = array(
+        '#type' => 'radios',
+        '#title' => t('Term ID or Term name'),
+        '#options' => array(
+          'tid' => t('Term ID'),
+          'name' => t('Term name'),
+        ),
+        '#default_value' => $settings['tid_or_name'],
+        '#description' => t('Which value should be appended to the path prefix'),
+      );
+      $element['separator'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Separator'),
+        '#default_value' => $settings['separator'],
+        '#description' => t('Choose a separator, include any spaces'),
+      );
+      break;
   }
 
   return $element;
@@ -289,6 +335,13 @@ function gsb_field_formatter_field_formatter_settings_summary($field, $instance,
         $output[] =  t('View mode: @mode', array('@mode' => $entity_type['view modes'][$settings['view_mode']]['label']));
       }
       $output[] = t('Separator: "%separator"', array('%separator' => $settings['separator']));
+
+      $summary = implode('<br>', $output);
+      break;
+
+    case 'gsb_field_formatter_path_term_separator':
+      $output[] = t('Separator: "%separator"', array('%separator' => $settings['separator']));
+      $output[] = t('Path: %path', array('%path' => $settings['path_prefix'] . '/$term->' . $settings['tid_or_name']));
 
       $summary = implode('<br>', $output);
       break;
