@@ -165,6 +165,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
     case 'gsb_field_formatter_address_city_state':
       $countries = _addressfield_country_options_list();
       foreach ($items as $delta => $item) {
+        $address = array();
         // City.
         if (!empty($item['locality'])) {
           $address[] = $item['locality'];
@@ -173,13 +174,14 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         if (!empty($item['administrative_area'])) {
           $address[] = $item['administrative_area'];
         }
-        if (!empty($address)) {
-          $address = implode(', ', $address);
-          if (!empty($item['country']) && $item['country'] != 'US' && isset($countries[$item['country']])) {
-            $address .= '<br>' . $countries[$item['country']];
+        $address = implode(', ', $address);
+        if (!empty($item['country']) && $item['country'] != 'US' && isset($countries[$item['country']])) {
+          if ($address) {
+            $address .= '<br>';
           }
-          $element[$delta]['#markup'] = $address;
+          $address .= $countries[$item['country']];
         }
+        $element[$delta]['#markup'] = $address;
       }
       break;
 
