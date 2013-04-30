@@ -163,6 +163,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       break;
 
     case 'gsb_field_formatter_address_city_state':
+      $countries = _addressfield_country_options_list();
       foreach ($items as $delta => $item) {
         // City.
         if (!empty($item['locality'])) {
@@ -173,12 +174,17 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           $address[] = $item['administrative_area'];
         }
         if (!empty($address)) {
-          $element[$delta]['#markup'] = implode(', ', $address);
+          $address = implode(', ', $address);
+          if (!empty($item['country']) && $item['country'] != 'US' && isset($countries[$item['country']])) {
+            $address .= '<br>' . $countries[$item['country']];
+          }
+          $element[$delta]['#markup'] = $address;
         }
       }
       break;
 
     case 'gsb_field_formatter_address_no_country':
+      $countries = _addressfield_country_options_list();
       foreach ($items as $delta => $item) {
         // Address line 1.
         if (!empty($item['thoroughfare'])) {
@@ -206,7 +212,10 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         if (!empty($item['postal_code'])) {
           $address['third_line'] .= ' ' . $item['postal_code'];
         }
-        // Combine all three lines.
+        if (!empty($item['country']) && $item['country'] != 'US' && isset($countries[$item['country']])) {
+          $address['fourth_line'] = $countries[$item['country']];
+        }
+        // Combine all of the lines.
         $element[$delta]['#markup'] = implode('<br>', array_filter($address));
       }
       break;
