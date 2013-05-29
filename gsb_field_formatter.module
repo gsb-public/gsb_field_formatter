@@ -59,6 +59,12 @@ function gsb_field_formatter_field_formatter_info() {
         'path_prefix' => 'taxonomy/term',
       ),
     ),
+    'gsb_field_formatter_image' => array(
+      'label' => t('GSB Image'),
+      'description' => t('Display the image in a specific view mode'),
+      'field types' => array('image'),
+      'settings' => array('image_style' => '', 'image_link' => ''),
+    ),
   );
 }
 
@@ -300,6 +306,42 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           $element[$delta]['#suffix'] = '<span class="separator">' . check_plain($settings['separator']) . '</span>';
         }
       }
+      break;
+    case 'gsb_field_formatter_image':
+      // Check if the formatter involves a link.
+      if ($display['settings']['image_link'] == 'content') {
+        $uri = entity_uri($entity_type, $entity);
+      }
+      elseif ($display['settings']['image_link'] == 'file') {
+        $link_file = TRUE;
+      }
+
+      foreach ($items as $delta => $item) {
+        if (isset($link_file)) {
+          $uri = array(
+            'path' => file_create_url($item['uri']),
+            'options' => array(),
+          );
+        }
+        $replace_options = array(
+          'clear' => 1,
+          'sanitize' => 0,
+        );
+        
+        $display['settings']['alt'] = '[file:field_file_image_alt_text]';
+        $display['settings']['title'] = '[file:field_file_image_title_text]';
+        $file = file_load($item['fid']);
+        $item['title'] = token_replace($display['settings']['title'], array('file' => $file), $replace_options);
+        $item['alt'] = token_replace($display['settings']['alt'], array('file' => $file), $replace_options);
+        
+        $element[$delta] = array(
+          '#theme' => 'image_formatter',
+          '#item' => $item,
+          '#image_style' => $display['settings']['image_style'],
+          '#path' => isset($uri) ? $uri : '',
+        );
+      }
+      break;
   }
 
   return $element;
@@ -374,6 +416,28 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
         '#description' => t('Choose a separator, include any spaces'),
       );
       break;
+    case 'gsb_field_formatter_image':
+      $image_styles = image_style_options(FALSE);
+      $element['image_style'] = array(
+        '#title' => t('Image style'),
+        '#type' => 'select',
+        '#default_value' => $settings['image_style'],
+        '#empty_option' => t('None (original image)'),
+        '#options' => $image_styles,
+      );
+
+      $link_types = array(
+        'content' => t('Content'),
+        'file' => t('File'),
+      );
+      $element['image_link'] = array(
+        '#title' => t('Link image to'),
+        '#type' => 'select',
+        '#default_value' => $settings['image_link'],
+        '#empty_option' => t('Nothing'),
+        '#options' => $link_types,
+      );
+      break;
   }
 
   return $element;
@@ -412,6 +476,32 @@ function gsb_field_formatter_field_formatter_settings_summary($field, $instance,
       $output[] = t('Path: %path', array('%path' => $settings['path_prefix'] . '/$term->' . $settings['tid_or_name']));
 
       $summary = implode('<br>', $output);
+      break;
+    case 'gsb_field_formatter_image':
+      $summary = array();
+
+      $image_styles = image_style_options(FALSE);
+      // Unset possible 'No defined styles' option.
+      unset($image_styles['']);
+      // Styles could be lost because of enabled/disabled modules that defines
+      // their styles in code.
+      if (isset($image_styles[$settings['image_style']])) {
+        $summary[] = t('Image style: @style', array('@style' => $image_styles[$settings['image_style']]));
+      }
+      else {
+        $summary[] = t('Original image');
+      }
+
+      $link_types = array(
+        'content' => t('Linked to content'),
+        'file' => t('Linked to file'),
+      );
+      // Display this setting only if image is linked.
+      if (isset($link_types[$settings['image_link']])) {
+        $summary[] = $link_types[$settings['image_link']];
+      }
+
+      $summary = implode('<br />', $summary);
       break;
   }
 
