@@ -235,13 +235,10 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         if (!empty($item['administrative_area'])) {
           $address[] = $item['administrative_area'];
         }
-        $address = implode(', ', $address);
         if (!empty($item['country']) && $item['country'] != 'US' && isset($countries[$item['country']])) {
-          if ($address) {
-            $address .= '<br>';
-          }
-          $address .= $countries[$item['country']];
+          $address[] = $countries[$item['country']];
         }
+        $address = implode(', ', $address);
         $element[$delta]['#markup'] = $address;
       }
       break;
