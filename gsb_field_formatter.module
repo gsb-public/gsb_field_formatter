@@ -353,7 +353,6 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           if ($title) {
             $file->filename = $title;
           }
-
           $element[$delta] = array(
             '#theme' => 'file_link',
             '#file' => $file,
