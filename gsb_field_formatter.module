@@ -65,6 +65,11 @@ function gsb_field_formatter_field_formatter_info() {
       'field types' => array('image'),
       'settings' => array('image_style' => '', 'image_link' => ''),
     ),
+    'gsb_field_formatter_document' => array(
+      'label' => t('GSB Document'),
+      'description' => t('Display the document as a link with field_title as title'),
+      'field types' => array('file'),
+    ),
   );
 }
 
@@ -337,6 +342,23 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           '#image_style' => $display['settings']['image_style'],
           '#path' => isset($uri) ? $uri : '',
         );
+      }
+      break;
+    case 'gsb_field_formatter_document':
+      foreach ($items as $delta => $item) {
+        $file = file_load($item['fid']);
+        if ($file->type == 'document') {
+          $entity_wrapper = entity_metadata_wrapper("file", $file->fid);
+          $title = $entity_wrapper->field_title->value();
+          if ($title) {
+            $file->filename = $title;
+          }
+
+          $element[$delta] = array(
+            '#theme' => 'file_link',
+            '#file' => $file,
+          );
+        }
       }
       break;
   }
