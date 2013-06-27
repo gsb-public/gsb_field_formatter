@@ -15,15 +15,6 @@ function gsb_field_formatter_field_formatter_info() {
       'field types' => array('file'),
       'settings' => array(
         'file_view_mode' => 'default',
-        'preview_view_mode' => 'preview',
-      ),
-    ),
-    'gsb_field_formatter_responsive_video' => array(
-      'label' => t('GSB Responsive Video'),
-      'field types' => array('file'),
-      'settings' => array(
-        'file_view_mode' => 'default',
-        'preview_view_mode' => 'preview',
       ),
     ),
     'gsb_field_formatter_field_collection_separator' => array(
@@ -81,70 +72,6 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
   $settings = $display['settings'];
 
   switch ($display['type']) {
-    case 'gsb_field_formatter_responsive_video':
-      // Spoof the file_rendered formatter.
-      $display['type'] = 'file_rendered';
-      $main_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display);
-      foreach ($main_element as $delta => $item) {
-        $element[$delta]['main'] = array(
-          '#type' => 'container',
-          '#attributes' => array(
-            'class' => array(
-              'gsb-responsive-main',
-            ),
-          ),
-          'item' => $item,
-        );
-      }
-
-      // Find all videos.
-      $video_items = array();
-      foreach ($items as $delta => $item) {
-        if ($item['type'] == 'video') {
-          $video_items[$delta] = $item;
-        }
-      }
-      if ($video_items) {
-        // Add a preview image for each video.
-        $display['settings']['file_view_mode'] = $display['settings']['preview_view_mode'];
-        $video_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $video_items, $display);
-        foreach ($video_element as $delta => $item) {
-          // Transform the stream wrapper into a path.
-          $path = drupal_realpath($video_items[$delta]['uri']);
-          // Parse the URL into parts, in order to make it an embed URL.
-          $video_parts = drupal_parse_url($path);
-          $embed = str_replace('watch', 'embed', $video_parts['path']) . '/' . $video_parts['query']['v'];
-          // Wrap the image in a link to trigger fancybox.
-          $item['wrapper'] = array(
-            '#type' => 'link',
-            '#title' => drupal_render($item['file']),
-            '#href' => $embed,
-            '#options' => array(
-              'html' => TRUE,
-              'query' => array(
-                'autoplay' => 1,
-              ),
-              'attributes' => array(
-                'class' => array(
-                  'fancybox',
-                  'fancybox.iframe',
-                ),
-              ),
-            ),
-          );
-
-          $element[$delta]['preview'] = array(
-            '#type' => 'container',
-            '#attributes' => array(
-              'class' => array(
-                'gsb-responsive-preview',
-              ),
-            ),
-            'item' => $item,
-          );
-        }
-      }
-      break;
     case 'gsb_field_formatter_image_or_video_popup':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
@@ -153,7 +80,6 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           $render_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, array($item), $display);
         }
         elseif ($item['type'] == 'video') {
-          $display['settings']['file_view_mode'] = $display['settings']['preview_view_mode'];
           $render_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, array($item), $display);
 
           // Transform the stream wrapper into a path.
@@ -374,18 +300,10 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
   $display = &$instance['display'][$view_mode];
   $settings = $display['settings'];
   switch ($display['type']) {
-    case 'gsb_field_formatter_responsive_video':
     case 'gsb_field_formatter_image_or_video_popup':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
       $element = file_entity_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
-      // Add a form element for preview view mode.
-      $element['preview_view_mode'] = array(
-        '#title' => t('Preview view mode'),
-        '#type' => 'select',
-        '#options' => file_entity_view_mode_labels(),
-        '#default_value' => $settings['preview_view_mode'],
-      );
       break;
     case 'gsb_field_formatter_field_collection_separator':
       $entity_type = entity_get_info('field_collection_item');
@@ -471,12 +389,9 @@ function gsb_field_formatter_field_formatter_settings_summary($field, $instance,
   $settings = $display['settings'];
   switch ($display['type']) {
     case 'gsb_field_formatter_image_or_video_popup':
-    case 'gsb_field_formatter_responsive_video':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
       $summary = file_entity_field_formatter_settings_summary($field, $instance, $view_mode);
-      $view_mode_label = file_entity_view_mode_label($settings['preview_view_mode'], t('Unknown'));
-      $summary .= '<br>' . t('Preview view mode: %mode', array('%mode' => $view_mode_label));
       break;
 
     case 'gsb_field_formatter_field_collection_separator':
