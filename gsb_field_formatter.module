@@ -104,6 +104,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
                 'class' => array(
                   'fancybox',
                   'fancybox.iframe',
+                  'gsb-video-preview',
                 ),
               ),
             ),
