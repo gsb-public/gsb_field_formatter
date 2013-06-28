@@ -15,7 +15,6 @@ function gsb_field_formatter_field_formatter_info() {
       'field types' => array('file'),
       'settings' => array(
         'file_view_mode' => 'default',
-        'preview_view_mode' => 'preview',
       ),
     ),
     'gsb_field_formatter_field_collection_separator' => array(
@@ -81,7 +80,6 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           $render_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, array($item), $display);
         }
         elseif ($item['type'] == 'video') {
-          $display['settings']['file_view_mode'] = $display['settings']['preview_view_mode'];
           $render_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, array($item), $display);
 
           // Transform the stream wrapper into a path.
