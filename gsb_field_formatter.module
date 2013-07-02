@@ -85,9 +85,18 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           // Transform the stream wrapper into a path.
           $path = drupal_realpath($item['uri']);
 
-          // Parse the URL into parts, in order to make it an embed URL.
-          $video_parts = drupal_parse_url($path);
-          $embed = str_replace('watch', 'embed', $video_parts['path']) . '/' . $video_parts['query']['v'];
+
+          // Handle Youbute videos.
+          if (strpos($path, 'youtube') !== FALSE) {
+            // Parse the URL into parts, in order to make it an embed URL.
+            $video_parts = drupal_parse_url($path);
+            $embed = str_replace('watch', 'embed', $video_parts['path']) . '/' . $video_parts['query']['v'];
+          }
+          // Handle Vimeo videos.
+          elseif (strpos($path, 'vimeo') !== FALSE) {
+            $video_id = end(explode('/', $path));
+            $embed = 'http://player.vimeo.com/video/' . $video_id;
+          }
           // Wrap the image in a link to trigger fancybox.
           $render_element = array(
             '#type' => 'link',
@@ -256,13 +265,13 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           'clear' => 1,
           'sanitize' => 0,
         );
-        
+
         $display['settings']['alt'] = '[file:field_file_image_alt_text]';
         $display['settings']['title'] = '[file:field_file_image_title_text]';
         $file = file_load($item['fid']);
         $item['title'] = token_replace($display['settings']['title'], array('file' => $file), $replace_options);
         $item['alt'] = token_replace($display['settings']['alt'], array('file' => $file), $replace_options);
-        
+
         $element[$delta] = array(
           '#theme' => 'image_formatter',
           '#item' => $item,
