@@ -85,15 +85,14 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           // Transform the stream wrapper into a path.
           $path = drupal_realpath($item['uri']);
 
-
           // Handle Youbute videos.
-          if (strpos($path, 'youtube') !== FALSE) {
+          if ($item['filemime'] == 'video/youtube') {
             // Parse the URL into parts, in order to make it an embed URL.
             $video_parts = drupal_parse_url($path);
             $embed = str_replace('watch', 'embed', $video_parts['path']) . '/' . $video_parts['query']['v'];
           }
           // Handle Vimeo videos.
-          elseif (strpos($path, 'vimeo') !== FALSE) {
+          elseif ($item['filemime'] == 'video/vimeo') {
             $video_id = end(explode('/', $path));
             $embed = 'http://player.vimeo.com/video/' . $video_id;
           }
