@@ -560,3 +560,29 @@ function field_group_pre_render_gsb_field_formatter_group_comma_separator(&$elem
   }
   field_group_pre_render_div($element, $group, $form);
 }
+
+/**
+ * Implements hook_field_collection_is_empty_alter().
+ *
+ * Override default is_empty handling of field_collection in order to get rid
+ * of empty containers.
+ */
+function gsb_field_formatter_field_collection_is_empty_alter(&$is_empty, $item) {
+  $wrapper = entity_metadata_wrapper('field_collection_item', $item);
+  if ($wrapper->field_name->value() == 'field_person_fac_other') {
+    switch ($wrapper->field_person_fac_or_other->value()) {
+      // Check if any of first_name or last_name are set for Other type.
+      case 'Other':
+        if (is_null($wrapper->field_first_name->value()) && is_null($wrapper->field_last_name->value())) {
+          $is_empty = TRUE;
+        }
+        break;
+      // Check if Entity reference is selected when UseEntityReference type.
+      case 'UseEntityReference':
+        if (is_null($wrapper->field_person_fac_single_ref->value())) {
+          $is_empty = TRUE;
+        }
+        break;
+      }
+  }
+}
