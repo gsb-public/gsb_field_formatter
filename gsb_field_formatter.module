@@ -75,6 +75,9 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
     case 'gsb_field_formatter_image_or_video_popup':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
+      if ($_GET['q'] == 'home') {
+        $display['settings']['file_view_mode'] = 'gsb_slideshow_small';
+      }
       foreach ($items as $delta => $item) {
         if ($item['type'] == 'image') {
           $render_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, array($item), $display);
