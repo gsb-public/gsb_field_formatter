@@ -79,6 +79,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         $display['settings']['file_view_mode'] = 'gsb_slideshow_small';
       }
       foreach ($items as $delta => $item) {
+        $render_element = null;
         if ($item['type'] == 'image') {
           $render_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, array($item), $display);
         }
@@ -119,16 +120,17 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             ),
           );
         }
-
-        $element[$delta] = array(
-          '#type' => 'container',
-          '#attributes' => array(
-            'class' => array(
-              'gsb-image-video-popup',
+        if ($render_element) {
+          $element[$delta] = array(
+            '#type' => 'container',
+            '#attributes' => array(
+              'class' => array(
+                'gsb-image-video-popup',
+              ),
             ),
-          ),
-          'item' => $render_element,
-        );
+            'item' => $render_element,
+          );
+        }
       }
       break;
     case 'gsb_field_formatter_field_collection_separator':
