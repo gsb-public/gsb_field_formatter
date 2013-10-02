@@ -10,6 +10,14 @@
  */
 function gsb_field_formatter_field_formatter_info() {
   return array(
+    'gsb_field_formatter_download_link' => array(
+      'label' => t('GSB Download Link'),
+      'field types' => array('file'),
+      'settings' => array(
+        'file_view_mode' => 'default',
+        'text' => t('Download'),
+      ),
+    ),       
     'gsb_field_formatter_image_or_video_popup' => array(
       'label' => t('GSB Image/Video popup'),
       'field types' => array('file'),
@@ -72,6 +80,15 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
   $settings = $display['settings'];
 
   switch ($display['type']) {
+    case 'gsb_field_formatter_download_link':
+      $file = $items[0];
+      dpm($instance);
+      $file['description'] = check_plain($instance['display']['default']['settings']['text']);
+      $element[] = array(
+        '#theme' => 'file_link',
+        '#file' => (object) $file,
+      );
+      break;
     case 'gsb_field_formatter_image_or_video_popup':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
@@ -314,6 +331,14 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
   $display = &$instance['display'][$view_mode];
   $settings = $display['settings'];
   switch ($display['type']) {
+    case 'gsb_field_formatter_download_link':
+      $element['text'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Link text'),
+        '#default_value' => $settings['text'],
+        '#required' => TRUE,
+      );
+      break;
     case 'gsb_field_formatter_image_or_video_popup':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
@@ -402,6 +427,11 @@ function gsb_field_formatter_field_formatter_settings_summary($field, $instance,
   $display = &$instance['display'][$view_mode];
   $settings = $display['settings'];
   switch ($display['type']) {
+
+    case 'gsb_field_formatter_download_link':
+      $summary = 'Link text: ' . $settings['text'];
+      break;
+
     case 'gsb_field_formatter_image_or_video_popup':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
