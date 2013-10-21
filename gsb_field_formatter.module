@@ -554,16 +554,9 @@ function field_group_pre_render_gsb_field_formatter_group_link_to_field(&$elemen
     $wrapper = entity_metadata_wrapper($group->entity_type, $form['#'. $group->entity_type]);
     $field_name = $group->format_settings['instance_settings']['field_name'];
     try {
-      $url = $wrapper->{$field_name}->url->value();
-      $element['#prefix'] = '<div class="' . $group->classes . '"><a href="' . $url . '"';
-
-      // If this field was configured to have a custom target, use that.
-      $instance = field_info_instance($wrapper->type(), $field_name, $wrapper->getBundle());
-      if (isset($instance['settings']['attributes']['target']) && in_array($instance['settings']['attributes']['target'], array(LINK_TARGET_NEW_WINDOW, LINK_TARGET_TOP))) {
-        $element['#prefix'] .= ' target="' . $instance['settings']['attributes']['target'] . '"';
-      }
-
-      $element['#prefix'] .= '>';
+      $wrapper_field = $wrapper->{$field_name};
+      $element['#prefix'] = '<div class="' . $group->classes . '">';
+      $element['#prefix'] .= '<a href="' . $wrapper_field->url->value() . '"' . drupal_attributes($wrapper_field->attributes->value()) . '>';
       $element['#suffix'] = '</a></div>';
       return;
     }
