@@ -541,6 +541,14 @@ function gsb_field_formatter_field_group_format_settings($group) {
         '#default_value' => !empty($group->format_settings['instance_settings']['field_name']) ? $group->format_settings['instance_settings']['field_name'] : '',
       );
       break;
+    case 'gsb_field_formatter_group_comma_separator':
+      $form['instance_settings']['item_count'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Number of items to show'),
+        '#description' => t('Use 0 to show all items'),
+        '#default_value' => !empty($group->format_settings['instance_settings']['item_count']) ? $group->format_settings['instance_settings']['item_count'] : 0,
+      );
+      break;
   }
   return $form;
 }
@@ -574,7 +582,33 @@ function field_group_pre_render_gsb_field_formatter_group_comma_separator(&$elem
   // Sort and count all fields in this group.
   $children = element_children($element, TRUE);
   $end = count($children) - 1;
+  // Determine the number of items to show. If 0, do not filter.
+  $item_count = $group->format_settings['instance_settings']['item_count'];
+  $filter = $item_count != 0;
   foreach ($children as $delta => $key) {
+    if ($filter) {
+      // Count the number of items in this element.
+      $terms = element_children($element[$key]);
+      // Calculate which items to keep.
+      $slice = array_slice($terms, 0, $item_count);
+      // Decrement the number of items left, with 0 as the lowest.
+      $item_count -= count($terms);
+      $item_count = max(0, $item_count);
+      // Remove all of the extraneous items.
+      foreach (array_diff_key($terms, $slice) as $index) {
+        unset($element[$key][$index]);
+      }
+      // Find the last kept item, and remove the trailing comma.
+      // See 'gsb_field_formatter_path_term_separator'.
+      $index = array_pop($slice);
+      if ($index !== NULL) {
+        unset($element[$key][$index]['#suffix']);
+      }
+      // If no other items are needed, do not add any extra commas.
+      if ($item_count == 0) {
+        continue;
+      }
+    }
     // Skip the last item.
     if ($delta != $end) {
       // Ensure that there is a suffix first.
