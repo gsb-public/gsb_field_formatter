@@ -81,14 +81,15 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
 
   switch ($display['type']) {
     case 'gsb_field_formatter_download_link':
-      $file = $items[0];
-      dpm($instance);
-      $file['description'] = check_plain($instance['display']['default']['settings']['text']);
-      $element[] = array(
-        '#theme' => 'file_link',
-        '#file' => (object) $file,
-      );
-      break;
+      if (!empty($items[0])) {
+        $file = $items[0];
+        $file['description'] = check_plain($instance['display']['default']['settings']['text']);
+        $element[] = array(
+          '#theme' => 'file_link',
+          '#file' => (object) $file,
+        );        
+      }
+      break;  
     case 'gsb_field_formatter_image_or_video_popup':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
