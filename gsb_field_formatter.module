@@ -56,6 +56,7 @@ function gsb_field_formatter_field_formatter_info() {
         'separator' => ', ',
         'tid_or_name' => 'tid',
         'path_prefix' => 'taxonomy/term',
+        'limit_depth' => FALSE,
       ),
     ),
     'gsb_field_formatter_image' => array(
@@ -76,6 +77,9 @@ function gsb_field_formatter_field_formatter_info() {
  * Implements hook_field_formatter_view().
  */
 function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  // Track the top level terms for vocabularies if needed.
+  static $top_level_terms = array();
+
   $element = array();
   $settings = $display['settings'];
 
@@ -260,6 +264,21 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       $count = count($items);
       foreach ($items as $delta => $item) {
         $term = taxonomy_term_load($item['tid']);
+        // Check if the depth needs to be limited.
+        if ($settings['limit_depth']) {
+          // If this vocabulary has not been seen before, load the top level of
+          // terms, and build an array with the tids as the keys and values.
+          if (!isset($top_level_terms[$term->vid])) {
+            $top_level_terms[$term->vid] = drupal_map_assoc(array_map(function ($term) {
+              return $term->tid;
+            }, taxonomy_get_tree($term->vid, 0, 1)));
+          }
+          // If this term is not in the top level, decrement the count and skip.
+          if (!isset($top_level_terms[$term->vid][$term->tid])) {
+            $count--;
+            continue;
+          }
+        }
         $path = $settings['path_prefix'] . '/' . str_replace(' ', '-', strtolower($term->{$settings['tid_or_name']}));
         $element[$delta]['#markup'] = l($term->name, $path);
         if ($delta != $count - 1) {
@@ -391,6 +410,12 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
         '#default_value' => $settings['separator'],
         '#description' => t('Choose a separator, include any spaces'),
       );
+      $element['limit_depth'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Limit depth to first level'),
+        '#default_value' => $settings['limit_depth'],
+        '#description' => t('Whether the depth should be limited to the first level'),
+      );
       break;
     case 'gsb_field_formatter_image':
       $image_styles = image_style_options(FALSE);
@@ -452,6 +477,7 @@ function gsb_field_formatter_field_formatter_settings_summary($field, $instance,
     case 'gsb_field_formatter_path_term_separator':
       $output[] = t('Separator: "%separator"', array('%separator' => $settings['separator']));
       $output[] = t('Path: %path', array('%path' => $settings['path_prefix'] . '/$term->' . $settings['tid_or_name']));
+      $output[] = t('Depth limited: %limit', array('%limit' => $settings['limit_depth'] ? t('Yes') : t('No')));
 
       $summary = implode('<br>', $output);
       break;
