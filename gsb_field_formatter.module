@@ -87,7 +87,9 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
     case 'gsb_field_formatter_download_link':
       if (!empty($items[0])) {
         $file = $items[0];
-        $file['description'] = check_plain($instance['display']['default']['settings']['text']);
+
+        // Support token replacement.
+        $file['description'] = token_replace($instance['display']['default']['settings']['text'], array($entity_type => $entity), array('clear' => 1, 'sanitize' => 0));
         $element[] = array(
           '#theme' => 'file_link',
           '#file' => (object) $file,
@@ -358,6 +360,14 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
         '#default_value' => $settings['text'],
         '#required' => TRUE,
       );
+      // Display token list.
+      if (module_exists('token')) {
+        $element['token_tree'] = array(
+          '#theme' => 'token_tree',
+          '#dialog' => TRUE,
+          '#token_types' => 'all',
+        );
+      }
       break;
     case 'gsb_field_formatter_image_or_video_popup':
       // Spoof the file_rendered formatter.
