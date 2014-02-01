@@ -70,6 +70,11 @@ function gsb_field_formatter_field_formatter_info() {
       'description' => t('Display the document as a link with field_title as title'),
       'field types' => array('file'),
     ),
+    'gsb_field_formatter_month' => array(
+      'label' => t('Convert to Month'),
+      'description' => t('Turn an integer field into a date value.'),
+      'field types' => array('number_integer'),
+    ),
   );
 }
 
@@ -337,6 +342,23 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             '#file' => $file,
           );
         }
+      }
+      break;
+    case 'gsb_field_formatter_month':
+      foreach ($items as $delta => $item) {
+        $month = $item['value'];
+        if ($month < 1) {
+          $month = 1;
+        }
+        else if ($month > 12) {
+          $month = 12;
+        }
+
+        $adjusted_date = mktime(0, 0, 0, $month, 10);
+
+        $element[$delta] = array(
+          '#markup' => date('F', $adjusted_date),
+        );
       }
       break;
   }
