@@ -55,7 +55,7 @@ function gsb_field_formatter_field_formatter_info() {
       'settings' =>  array(
         'separator' => ', ',
         'tid_or_name' => 'tid',
-        'path_prefix' => 'taxonomy/term',
+        'path_prefix' => 'taxonomy/term/',
         'limit_depth' => FALSE,
       ),
     ),
@@ -286,8 +286,8 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             continue;
           }
         }
-        $path = $settings['path_prefix'] . '/' . str_replace(' ', '-', strtolower($term->{$settings['tid_or_name']}));
-        $element[$delta]['#markup'] = l($term->name, $path);
+        $path = $settings['path_prefix'] . str_replace(' ', '-', strtolower($term->{$settings['tid_or_name']}));
+        $element[$delta]['#markup'] = '<a href="' . base_path() . $path . '">' . check_plain($term->name) . '</a>';
         if ($delta != $count - 1) {
           $element[$delta]['#suffix'] = '<span class="separator">' . check_plain($settings['separator']) . '</span>';
         }
@@ -424,7 +424,7 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
         '#type' => 'textfield',
         '#title' => t('Path prefix'),
         '#default_value' => $settings['path_prefix'],
-        '#description' => t('The prefix for the path, defaults to taxonomy/term'),
+        '#description' => t('The prefix for the path, defaults to taxonomy/term/'),
       );
       $element['tid_or_name'] = array(
         '#type' => 'radios',
@@ -508,7 +508,7 @@ function gsb_field_formatter_field_formatter_settings_summary($field, $instance,
 
     case 'gsb_field_formatter_path_term_separator':
       $output[] = t('Separator: "%separator"', array('%separator' => $settings['separator']));
-      $output[] = t('Path: %path', array('%path' => $settings['path_prefix'] . '/$term->' . $settings['tid_or_name']));
+      $output[] = t('Path: %path', array('%path' => $settings['path_prefix'] . '$term->' . $settings['tid_or_name']));
       $output[] = t('Depth limited: %limit', array('%limit' => $settings['limit_depth'] ? t('Yes') : t('No')));
 
       $summary = implode('<br>', $output);
