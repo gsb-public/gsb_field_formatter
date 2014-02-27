@@ -270,7 +270,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
     case 'gsb_field_formatter_path_term_separator':
       $count = count($items);
       foreach ($items as $delta => $item) {
-        $term = taxonomy_term_load($item['tid']);
+        $term = $item['taxonomy_term'];
         // Check if the depth needs to be limited.
         if ($settings['limit_depth']) {
           // If this vocabulary has not been seen before, load the top level of
@@ -364,6 +364,21 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
   }
 
   return $element;
+}
+
+/**
+ * Implements hook_field_formatter_prepare_view().
+ */
+function gsb_field_formatter_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
+  $taxonomy_entities = array();
+  foreach ($entities as $entity_id => $entity) {
+    if ($displays[$entity_id]['type'] == 'gsb_field_formatter_path_term_separator') {
+      $taxonomy_entities[$entity_id] = $entity;
+    }
+  }
+  if (!empty($taxonomy_entities)) {
+    taxonomy_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, $items, $displays);
+  }
 }
 
 /**
