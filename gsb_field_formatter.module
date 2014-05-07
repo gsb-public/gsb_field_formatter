@@ -286,7 +286,8 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             continue;
           }
         }
-        $path = $settings['path_prefix'] . str_replace(' ', '-', strtolower($term->{$settings['tid_or_name']}));
+        module_load_include('inc', 'pathauto');
+        $path = $settings['path_prefix'] . pathauto_cleanstring($term->{$settings['tid_or_name']});
         $element[$delta]['#markup'] = '<a href="' . base_path() . $path . '">' . check_plain($term->name) . '</a>';
         if ($delta != $count - 1) {
           $element[$delta]['#suffix'] = '<span class="separator">' . check_plain($settings['separator']) . '</span>';
