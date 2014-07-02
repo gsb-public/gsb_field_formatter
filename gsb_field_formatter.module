@@ -94,7 +94,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         $file = $items[0];
 
         // Support token replacement.
-        $file['description'] = token_replace($instance['display']['default']['settings']['text'], array($entity_type => $entity), array('clear' => 1, 'sanitize' => 0));
+        $file['description'] = token_replace($display['settings']['text'], array($entity_type => $entity), array('clear' => 1, 'sanitize' => 0));
         $element[] = array(
           '#theme' => 'file_link',
           '#file' => (object) $file,
