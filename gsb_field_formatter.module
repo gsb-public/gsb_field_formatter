@@ -75,6 +75,13 @@ function gsb_field_formatter_field_formatter_info() {
       'description' => t('Turn an integer field into a date value.'),
       'field types' => array('number_integer'),
     ),
+    'gsb_field_formatter_related_items_field_collection' => array(
+      'label' => t('Related items field collection'),
+      'field types' => array('field_collection'),
+      'settings' =>  array(
+        'view_mode' => 'full',
+      ),
+    ),
   );
 }
 
@@ -362,6 +369,25 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         );
       }
       break;
+
+    case 'gsb_field_formatter_related_items_field_collection':
+      $view_mode = !empty($display['settings']['view_mode']) ? $display['settings']['view_mode'] : 'full';
+      foreach ($items as $delta => $item) {
+        if ($field_collection = field_collection_field_get_entity($item)) {
+          $wrapper = entity_metadata_wrapper('field_collection_item', $field_collection);
+          if ($wrapper->field_related_other_content->value()) {
+            $node = $wrapper->field_related_other_content->value();
+            if (node_access('view', $node)) {
+              $element[$delta]['entity'] = $field_collection->view($view_mode);
+              if (!$node->status) {
+                $element[$delta]['entity']['#type'] = 'container';
+                $element[$delta]['entity']['#attributes']['class'] = array('node-unpublished');
+              }
+            }
+          }
+        }
+      }
+      break;
   }
 
   return $element;
@@ -487,6 +513,12 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
         '#options' => $link_types,
       );
       break;
+
+    case 'gsb_field_formatter_related_items_field_collection':
+      // Inherit form from field_collection_fields formatter.
+      $instance['display'][$view_mode]['type'] = 'field_collection_fields';
+      $element = field_collection_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
+      break;
   }
 
   return $element;
@@ -554,6 +586,11 @@ function gsb_field_formatter_field_formatter_settings_summary($field, $instance,
       }
 
       $summary = implode('<br />', $summary);
+      break;
+    case 'gsb_field_formatter_related_items_field_collection':
+      // Inherit form from field_collection_fields formatter.
+      $instance['display'][$view_mode]['type'] = 'field_collection_fields';
+      $summary = field_collection_field_formatter_settings_summary($field, $instance, $view_mode);
       break;
   }
 
