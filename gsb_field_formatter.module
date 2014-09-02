@@ -17,7 +17,7 @@ function gsb_field_formatter_field_formatter_info() {
         'file_view_mode' => 'default',
         'text' => t('Download'),
       ),
-    ),       
+    ),
     'gsb_field_formatter_image_or_video_popup' => array(
       'label' => t('GSB Image/Video popup'),
       'field types' => array('file'),
@@ -105,9 +105,9 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         $element[] = array(
           '#theme' => 'file_link',
           '#file' => (object) $file,
-        );        
+        );
       }
-      break;      
+      break;
     case 'gsb_field_formatter_image_or_video_popup':
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
@@ -264,8 +264,8 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
     case 'gsb_field_formatter_node_title_link':
       foreach ($items as $delta => $item) {
         $element[$delta] = array(
-          '#prefix' => '<h5>',
-          '#suffix' => '</h5>',
+          '#prefix' => '<h2>',
+          '#suffix' => '</h2>',
           '#type' => 'link',
           '#href' => $item['url'],
           '#title' => $entity->title,
