@@ -156,6 +156,37 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             ),
           );
         }
+        elseif ($item['type'] == 'resource_youtube') {
+
+          // Get the youtube embed code.
+          $youtube = new ResourcesYouTubeStreamWrapper();
+          $youtube->setUri($item['uri']);
+          $href = $youtube->interpolateUrl();
+          $video_parts = drupal_parse_url($href);
+          $embed = str_replace('watch', 'embed', $video_parts['path']) . '/' . $video_parts['query']['v'];
+
+          // Render the image.
+          $image_render_array = file_view($entity, $display['settings']['file_view_mode']);
+          // Wrap the image in a link to trigger fancybox.
+          $render_element = array(
+            '#type' => 'link',
+            '#title' => drupal_render($image_render_array),
+            '#href' => $embed,
+            '#options' => array(
+              'html' => TRUE,
+              'query' => array(
+                'autoplay' => 1,
+              ),
+              'attributes' => array(
+                'class' => array(
+                  'fancybox',
+                  'fancybox.iframe',
+                  'gsb-video-preview',
+                ),
+              ),
+            ),
+          );
+        }
         if ($render_element) {
           $element[$delta] = array(
             '#type' => 'container',
