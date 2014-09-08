@@ -25,6 +25,13 @@ function gsb_field_formatter_field_formatter_info() {
         'file_view_mode' => 'default',
       ),
     ),
+    'gsb_field_formatter_resources_video_image_popup' => array(
+      'label' => t('Resources Video Image Popup'),
+      'field types' => array('file'),
+      'settings' => array(
+        'image_style' => '',
+      ),
+    ),
     'gsb_field_formatter_field_collection_separator' => array(
       'label' => t('Fields with a separator'),
       'field types' => array('field_collection'),
@@ -156,21 +163,51 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             ),
           );
         }
-        elseif ($item['type'] == 'resource_youtube') {
+        if ($render_element) {
+          $element[$delta] = array(
+            '#type' => 'container',
+            '#attributes' => array(
+              'class' => array(
+                'gsb-image-video-popup',
+              ),
+            ),
+            'item' => $render_element,
+          );
+        }
+      }
+      break;
+    case 'gsb_field_formatter_resources_video_image_popup':
+      // Spoof the file_rendered formatter.
+      $display['type'] = 'file_rendered';
 
+      foreach ($items as $delta => $item) {
+        $render_element = NULL;
+        $stream_wrapper = NULL;
+        if ($item['type'] == 'resource_youtube') {
           // Get the youtube embed code.
-          $youtube = new ResourcesYouTubeStreamWrapper();
-          $youtube->setUri($item['uri']);
-          $href = $youtube->interpolateUrl();
+          $stream_wrapper = new ResourcesYouTubeStreamWrapper();
+        }
+
+        if ($stream_wrapper) {
+          $stream_wrapper->setUri($item['uri']);
+          $href = $stream_wrapper->interpolateUrl();
           $video_parts = drupal_parse_url($href);
           $embed = str_replace('watch', 'embed', $video_parts['path']) . '/' . $video_parts['query']['v'];
 
-          // Render the image.
-          $image_render_array = file_view($entity, $display['settings']['file_view_mode']);
+          // Build the thumbnail.
+          $thumbnail = array(
+            'style_name' => $display['settings']['image_style'],
+            'path' => $stream_wrapper->getLocalThumbnailPath($item['uri']),
+            'alt' => $item['alt'],
+            'title' => $item['title'],
+            'width' => '',
+            'height' => '',
+          );
+
           // Wrap the image in a link to trigger fancybox.
           $render_element = array(
             '#type' => 'link',
-            '#title' => drupal_render($image_render_array),
+            '#title' => theme_image_style($thumbnail),
             '#href' => $embed,
             '#options' => array(
               'html' => TRUE,
@@ -468,6 +505,18 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
       // Spoof the file_rendered formatter.
       $display['type'] = 'file_rendered';
       $element = file_entity_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
+      break;
+    case 'gsb_field_formatter_resources_video_image_popup':
+      // Spoof the file_rendered formatter.
+      $display['type'] = 'file_rendered';
+      $image_styles = image_style_options(FALSE);
+      $element['image_style'] = array(
+        '#title' => t('Image style of the thumbnail'),
+        '#type' => 'select',
+        '#default_value' => $settings['image_style'],
+        '#empty_option' => t('None (original image)'),
+        '#options' => $image_styles,
+      );
       break;
     case 'gsb_field_formatter_field_collection_separator':
       $entity_type = entity_get_info('field_collection_item');
