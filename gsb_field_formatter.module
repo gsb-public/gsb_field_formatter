@@ -205,7 +205,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           );
 
           // Wrap the image in a link to trigger fancybox.
-          $render_element = array(
+          $rendered_thumbnail = array(
             '#type' => 'link',
             '#title' => theme_image_style($thumbnail),
             '#href' => $embed,
@@ -224,7 +224,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             ),
           );
         }
-        if ($render_element) {
+        if ($rendered_thumbnail) {
           $element[$delta] = array(
             '#type' => 'container',
             '#attributes' => array(
@@ -232,7 +232,27 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
                 'gsb-image-video-popup',
               ),
             ),
-            'item' => $render_element,
+          );
+
+          $rendered_video = file_view((object) $item, '1_2_width');
+          $element[$delta]['video'] = array(
+            '#type' => 'container',
+            '#attributes' => array(
+              'class' => array(
+                'gsb-image-video-popup-video',
+              ),
+            ),
+            'item' => $rendered_video,
+          );
+
+          $element[$delta]['thumbnail'] = array(
+            '#type' => 'container',
+            '#attributes' => array(
+              'class' => array(
+                'gsb-image-video-popup-thumbnail',
+              ),
+            ),
+            'item' => $rendered_thumbnail,
           );
         }
       }
