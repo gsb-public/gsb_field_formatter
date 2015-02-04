@@ -56,6 +56,10 @@ function gsb_field_formatter_field_formatter_info() {
       'label' => t('Node title link'),
       'field types' => array('link_field'),
     ),
+    'gsb_field_formatter_featured_content_featured_item_link' => array(
+      'label' => t('Featured item link'),
+      'field types' => array('link_field'),
+    ),
     'gsb_field_formatter_path_term_separator' => array(
       'label' => t('Separated tags with custom path'),
       'field types' => array('taxonomy_term_reference'),
@@ -357,6 +361,20 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           '#type' => 'link',
           '#href' => $item['url'],
           '#title' => $entity->title,
+          '#options' => array('attributes' => array('target' => '_blank'))
+        );
+      }
+      break;
+
+    case 'gsb_field_formatter_featured_content_featured_item_link':
+      //dpm($entity);
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          '#prefix' => '<h2>',
+          '#suffix' => '</h2>',
+          '#type' => 'link',
+          '#href' => $item['url'],
+          '#title' => $entity->field_title[$langcode][0]['value'],
           '#options' => array('attributes' => array('target' => '_blank'))
         );
       }
