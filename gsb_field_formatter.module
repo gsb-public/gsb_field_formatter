@@ -503,6 +503,9 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
 
     case 'gsb_field_formatter_split_date_format':
       foreach ($items as $delta => $item) {
+        $local_date = date_formatter_process($instance['display']['default']['type'], $entity->entity_type, $entity, $field, $instance, LANGUAGE_NONE, $item, $instance['display']['default']);
+        $all_day = date_all_day_field($field, $instance, $local_date['value']['local']['object'], $local_date['value2']['local']['object']);
+        
         $db_format = date_type_format($field['type']);
         $date = new DateObject($item['value'], $item['timezone_db'], $db_format);
         $timezone = isset($item['timezone']) ? $item['timezone'] : '';
@@ -521,13 +524,16 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             if ($time2 != $time) {
               $time .= ' - ' . $time2;
             }
-            $output = '<div class="split-date-time"><div class="date">' . $month_day_year . '</div><div class="time">' . $time . '</div></div>';
+            $time_output = $all_day ? '' : '<div class="time">' . $time . '</div>';
+            $output = '<div class="split-date-time"><div class="date">' . $month_day_year . '</div>' . $time_output . '</div>';
           }
           else {
             // Range of dates
             $time2 = date_format_date($date2, 'custom', 'i') !== '00' ? date_format_date($date2, 'custom', 'g:ia') : date_format_date($date2, 'custom', 'g:ia');
             $month_day_year2 = date_format_date($date2, 'custom', 'l, M j, Y');
-            $output = '<div class="split-date-time"><div class="date">' . $month_day_year . ' - ' . $month_day_year2 . '</div><div class="time">' . $time . ' - ' . $time2 . '</div></div>';
+            $time_output = $all_day ? '' : '<div class="time">' . $time . ' - ' . $time2 . '</div>';
+            $output = '<div class="split-date-time"><div class="date">' . $month_day_year . ' - ' . $month_day_year2 . '</div>' . $time_output . '</div>';
+
           }
         }
 
