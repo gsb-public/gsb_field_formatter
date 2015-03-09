@@ -503,7 +503,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
 
     case 'gsb_field_formatter_split_date_format':
       foreach ($items as $delta => $item) {
-        $local_date = date_formatter_process($instance['display']['default']['type'], $entity->entity_type, $entity, $field, $instance, LANGUAGE_NONE, $item, $instance['display']['default']);
+        $local_date = date_formatter_process($instance['display']['default']['type'], $entity_type, $entity, $field, $instance, LANGUAGE_NONE, $item, $instance['display']['default']);
         $all_day = date_all_day_field($field, $instance, $local_date['value']['local']['object'], $local_date['value2']['local']['object']);
         
         $db_format = date_type_format($field['type']);
