@@ -373,15 +373,18 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       break;
 
     case 'gsb_field_formatter_featured_content_featured_item_link':
-      //dpm($entity);
       foreach ($items as $delta => $item) {
+        $attributes = array();
+        if (!empty($item['attributes']['target'])) {
+          $attributes['target'] = $item['attributes']['target'];
+        }
         $element[$delta] = array(
           '#prefix' => '<h2>',
           '#suffix' => '</h2>',
           '#type' => 'link',
           '#href' => $item['url'],
           '#title' => $entity->field_title[$langcode][0]['value'],
-          '#options' => array('attributes' => array('target' => '_blank'))
+          '#options' => array('attributes' => $attributes),
         );
       }
       break;
