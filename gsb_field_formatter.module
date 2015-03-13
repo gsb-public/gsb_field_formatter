@@ -378,11 +378,21 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         if (!empty($item['attributes']['target'])) {
           $attributes['target'] = $item['attributes']['target'];
         }
+        $url = $item['url'];
+        if (!empty($item['query'])) {
+          $url .= '?';
+          $index = 0;
+          foreach($item['query'] as $key => $value) {
+            $url .= $index > 0 ? '&' : '';
+            $url .= $key . '=' . $value;
+            $index++;
+          }
+        }
         $element[$delta] = array(
           '#prefix' => '<h2>',
           '#suffix' => '</h2>',
           '#type' => 'link',
-          '#href' => $item['url'],
+          '#href' => $url,
           '#title' => $entity->field_title[$langcode][0]['value'],
           '#options' => array('attributes' => $attributes),
         );
