@@ -146,7 +146,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           // switch to https if needed
           $pos = strpos($base_url, 'https');
           if ($pos !== false) {
-            $path = str_replace('http', 'https', $path);
+            $path = str_replace('http://', 'https://', $path);
           }          
 
           // Handle Youbute videos.
@@ -162,7 +162,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             // switch to https if needed
             $pos = strpos($base_url, 'https');
             if ($pos !== false) {
-              $embed = str_replace('http', 'https', $embed);
+              $embed = str_replace('http://', 'https://', $embed);
             }            
             $embed .= $video_id;
           }
