@@ -40,6 +40,19 @@ function gsb_field_formatter_field_formatter_info() {
         'separator' => ', ',
       ),
     ),
+    'gsb_field_formatter_address_custom' => array(
+      'label' => t('Full Address (custom)'),
+      'field types' => array('addressfield'),
+      'settings' =>  array(
+        'display_address_line1' => TRUE,
+        'display_address_line2' => TRUE,
+        'display_city' => TRUE,
+        'display_state' => TRUE,
+        'display_post_code' => TRUE,
+        'display_country' => TRUE,
+        'hide_usa_country' => TRUE,
+      ),
+    ),
     'gsb_field_formatter_spotlight_fid_to_image' => array(
       'label' => t('Spotlight FID to Image'),
       'field types' => array('text', 'number_integer'),
@@ -114,6 +127,54 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
   $settings = $display['settings'];
 
   switch ($display['type']) {
+    case 'gsb_field_formatter_address_custom':
+      foreach ($items as $delta => $item) {
+        $address = array();
+        // Address line 1.
+        if ($display['settings']['display_address_line1']) {
+          if (!empty($item['thoroughfare'])) {
+            $address['first_line'] = $item['thoroughfare'];
+          }
+        }
+        // Address line 2.
+        if ($display['settings']['display_address_line2']) {
+          if (!empty($item['premise'])) {
+            $address['second_line'] = $item['premise'];
+          }
+        }
+        // City.
+        if ($display['settings']['display_city']) {
+          if (!empty($item['locality'])) {
+            $address[] = $item['locality'];
+          }
+        }
+        // State
+        if ($display['settings']['display_state']) {
+          if (!empty($item['administrative_area'])) {
+            $address[] = $item['administrative_area'];
+          }
+        }
+        // Post Code
+        if ($display['settings']['display_post_code']) {
+          if (!empty($item['postal_code'])) {
+            $address[] = $item['postal_code'];
+          }
+        }
+        // Country
+        if ($display['settings']['display_country']) {
+          if (!empty($item['country']) && isset($countries[$item['country']])) {
+            if ($item['country'] == 'US' && !$display['settings']['hide_usa_country']) {
+              $address[] = $countries[$item['country']];
+            }
+            else {
+              $address[] = $countries[$item['country']];
+            }
+          }
+        }
+        $address = implode(', ', $address);
+        $element[$delta]['#markup'] = $address;
+      }
+      break;
     case 'gsb_field_formatter_download_link':
       if (!empty($items[0])) {
         $file = $items[0];
@@ -714,6 +775,45 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
       $instance['display'][$view_mode]['type'] = 'field_collection_fields';
       $element = field_collection_field_formatter_settings_form($field, $instance, $view_mode, $form, $form_state);
       break;
+
+    case 'gsb_field_formatter_address_custom':
+      $element['display_address_line1'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Display Street Address Line 1'),
+        '#default_value' => $settings['display_address_line1'],
+      );
+      $element['display_address_line2'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Display Street Address Line 2'),
+        '#default_value' => $settings['display_address_line2'],
+      );
+      $element['display_city'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Display City'),
+        '#default_value' => $settings['display_city'],
+      );
+      $element['display_state'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Display State'),
+        '#default_value' => $settings['display_state'],
+      );
+      $element['display_post_code'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Display Post Code'),
+        '#default_value' => $settings['display_post_code'],
+      );
+      $element['display_country'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Display Country'),
+        '#default_value' => $settings['display_country'],
+      );
+      $element['hide_usa_country'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Hide USA Country'),
+        '#default_value' => $settings['hide_usa_country'],
+      );
+      break;
+
   }
 
   return $element;
