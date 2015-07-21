@@ -162,6 +162,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         }
         // Country
         if ($display['settings']['display_country']) {
+          $countries = _addressfield_country_options_list();
           if (!empty($item['country']) && isset($countries[$item['country']])) {
             if ($item['country'] == 'US' && !$display['settings']['hide_usa_country']) {
               $address[] = $countries[$item['country']];
