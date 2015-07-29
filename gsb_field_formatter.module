@@ -151,7 +151,14 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         // State
         if ($display['settings']['display_state']) {
           if (!empty($item['administrative_area'])) {
-            $address[] = $item['administrative_area'];
+            module_load_include('inc', 'addressfield', 'addressfield.administrative_areas');
+            if ($item['country'] == 'US') {
+              $address[] = $item['administrative_area'];
+            }
+            else {
+              $administrative_areas = addressfield_get_administrative_areas($item['country']);
+              $address[] = $administrative_areas != null && isset($administrative_areas[$item['administrative_area']]) ? $administrative_areas[$item['administrative_area']] : $item['administrative_area'];
+            }
           }
         }
         // Post Code
