@@ -10,6 +10,11 @@
  */
 function gsb_field_formatter_field_formatter_info() {
   return array(
+    'gsb_field_formatter_email_default' => array(
+      'label' => t('GSB Default email link'),
+      'description' => t('Display Email as a mailto link.'),
+      'field types' => array('email'),
+    ),
     'gsb_field_formatter_download_link' => array(
       'label' => t('GSB Download Link'),
       'field types' => array('file'),
@@ -127,6 +132,12 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
   $settings = $display['settings'];
 
   switch ($display['type']) {
+    case 'gsb_field_formatter_email_default':
+      foreach ($items as $delta => $item) {
+        $output = l('Email', 'mailto:' . $item['email']);
+        $element[$delta] = array('#markup' => $output);
+      }
+      break;
     case 'gsb_field_formatter_address_custom':
       foreach ($items as $delta => $item) {
         $address = array();
