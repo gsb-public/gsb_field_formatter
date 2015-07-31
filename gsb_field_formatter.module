@@ -117,6 +117,11 @@ function gsb_field_formatter_field_formatter_info() {
       'field types' => array('date', 'datestamp', 'datetime'),
       'multiple values' => FIELD_BEHAVIOR_DEFAULT,
     ),
+    'gsb_field_formatter_time_zone_abbreviated' => array(
+      'label' => t('Timezone abbreviated'),
+      'description' => t('Date format to have date and time on two lines'),
+      'field types' => array('tzfield'),
+    ),
   );
 }
 
@@ -643,6 +648,16 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         else {
           $output = '<div class="split-date-time"><div class="date">' . $month_day_year . '</div><div class="time">' . $time . '</div></div>';
         }
+        $element[$delta] = array(
+          '#markup' => $output,
+        );
+      }
+      break;
+    case 'gsb_field_formatter_time_zone_abbreviated':
+      foreach ($items as $delta => $item) {
+        $dateTime = new DateTime();
+        $dateTime->setTimeZone(new DateTimeZone($item['value']));
+        $output = $dateTime->format('T');
         $element[$delta] = array(
           '#markup' => $output,
         );
