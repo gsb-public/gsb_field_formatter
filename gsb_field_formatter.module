@@ -630,7 +630,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             // Same date with a time range
             $time2 = date_format_date($date2, 'custom', 'i') !== '00' ? date_format_date($date2, 'custom', 'g:ia') : date_format_date($date2, 'custom', 'g:ia');
             if ($time2 != $time) {
-              $time .= ' - ' . $time2;
+              $time .= ' – ' . $time2;
             }
             $time_output = $all_day ? '' : '<div class="time">' . $time . '</div>';
             $output = '<div class="split-date-time"><div class="date">' . $month_day_year . '</div>' . $time_output . '</div>';
@@ -639,8 +639,8 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             // Range of dates
             $time2 = date_format_date($date2, 'custom', 'i') !== '00' ? date_format_date($date2, 'custom', 'g:ia') : date_format_date($date2, 'custom', 'g:ia');
             $month_day_year2 = date_format_date($date2, 'custom', 'l, M j, Y');
-            $time_output = $all_day ? '' : '<div class="time">' . $time . ' - ' . $time2 . '</div>';
-            $output = '<div class="split-date-time"><div class="date">' . $month_day_year . ' - ' . $month_day_year2 . '</div>' . $time_output . '</div>';
+            $time_output = $all_day ? '' : '<div class="time">' . $time . ' – ' . $time2 . '</div>';
+            $output = '<div class="split-date-time"><div class="date">' . $month_day_year . ' – ' . $month_day_year2 . '</div>' . $time_output . '</div>';
 
           }
         }
