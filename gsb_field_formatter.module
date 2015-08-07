@@ -462,7 +462,13 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           '#type' => 'link',
           '#href' => $item['url'],
           '#title' => $entity->title,
-          '#options' => array('attributes' => array('target' => '_blank'))
+          '#options' => array(
+            'attributes' => array(
+              'target' => '_blank',
+            ),
+            'query' => $item['query'],
+            'fragment' => $item['fragment'],
+          ),
         );
       }
       break;
