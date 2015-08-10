@@ -149,13 +149,13 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         // Address line 1.
         if ($display['settings']['display_address_line1']) {
           if (!empty($item['thoroughfare'])) {
-            $address['first_line'] = $item['thoroughfare'];
+            $output .= '<div class="address-line-1"><span class="address-thoroughfare">' . $item['thoroughfare'] . '</span></div>';
           }
         }
         // Address line 2.
         if ($display['settings']['display_address_line2']) {
           if (!empty($item['premise'])) {
-            $address['second_line'] = $item['premise'];
+            $output .= '<div class="address-line-2"><span class="address-premise">' . $item['premise'] . '</span></div>';
           }
         }
         // City.
@@ -192,8 +192,10 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             }
           }
         }
-        $address = implode(', ', $address);
-        $element[$delta]['#markup'] = $address;
+        if (!empty($address)) {
+          $output .= '<div class="address-line-3">' . implode(', ', $address) . '</div>';
+        }
+        $element[$delta]['#markup'] = $output;
       }
       break;
     case 'gsb_field_formatter_download_link':
@@ -224,12 +226,12 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
 
           // Transform the stream wrapper into a path.
           $path = drupal_realpath($item['uri']);
-          
+
           // switch to https if needed
           $pos = strpos($base_url, 'https');
           if ($pos !== false) {
             $path = str_replace('http://', 'https://', $path);
-          }          
+          }
 
           // Handle Youbute videos.
           if ($item['filemime'] == 'video/youtube') {
@@ -245,7 +247,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             $pos = strpos($base_url, 'https');
             if ($pos !== false) {
               $embed = str_replace('http://', 'https://', $embed);
-            }            
+            }
             $embed .= $video_id;
           }
           // Wrap the image in a link to trigger fancybox.
@@ -619,7 +621,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       foreach ($items as $delta => $item) {
         $local_date = date_formatter_process($instance['display']['default']['type'], $entity_type, $entity, $field, $instance, LANGUAGE_NONE, $item, $instance['display']['default']);
         $all_day = date_all_day_field($field, $instance, $local_date['value']['local']['object'], $local_date['value2']['local']['object']);
-        
+
         $db_format = date_type_format($field['type']);
         $date = new DateObject($item['value'], $item['timezone_db'], $db_format);
         $timezone = isset($item['timezone']) ? $item['timezone'] : '';
