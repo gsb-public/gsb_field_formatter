@@ -144,6 +144,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       }
       break;
     case 'gsb_field_formatter_address_custom':
+      $output = '';
       foreach ($items as $delta => $item) {
         $address = array();
         // Address line 1.
