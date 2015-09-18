@@ -1028,7 +1028,8 @@ function field_group_pre_render_gsb_field_formatter_group_link_to_field(&$elemen
  */
 function field_group_pre_render_gsb_field_formatter_group_comma_separator(&$element, $group, &$form) {
   // Sort and count all fields in this group.
-  $children = element_children(array_filter($element), TRUE);
+  $element = array_filter($element);
+  $children = element_children($element, TRUE);
   $end = count($children) - 1;
   // Determine the number of items to show. If 0, do not filter.
   $item_count = !empty($group->format_settings['instance_settings']['item_count']) ? $group->format_settings['instance_settings']['item_count'] : 0;
