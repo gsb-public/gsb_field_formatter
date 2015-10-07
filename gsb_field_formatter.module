@@ -23,6 +23,14 @@ function gsb_field_formatter_field_formatter_info() {
         'text' => t('Download'),
       ),
     ),
+    'gsb_field_formatter_video_lightbox' => array(
+      'label' => t('GSB Image/Video lightbox'),
+      'field types' => array('video_embed_field'),
+      'settings' => array(
+        'file_view_mode' => 'default',
+        'image_style' => '',
+      ),
+    ),
     'gsb_field_formatter_image_or_video_popup' => array(
       'label' => t('GSB Image/Video popup'),
       'field types' => array('file'),
@@ -209,6 +217,85 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           '#theme' => 'file_link',
           '#file' => (object) $file,
         );
+      }
+      break;
+    case 'gsb_field_formatter_video_lightbox':
+      foreach ($items as $delta => $item) {
+        // Wrap the image in a link to trigger fancybox.
+        $video_parts = drupal_parse_url($item['video_url']);
+        $embed = str_replace('watch', 'embed', $video_parts['path']) . '/' . $video_parts['query']['v'];
+        $rendered_video = array(
+          '#type' => 'link',
+          '#title' => '',
+          '#href' => $embed,
+          '#options' => array(
+            'html' => TRUE,
+            'query' => array(
+              'autoplay' => 1,
+            ),
+            'attributes' => array(
+              'class' => array(
+                'fancybox',
+                'fancybox.iframe',
+                'gsb-video-preview',
+              ),
+            ),
+          ),
+        );
+        // Get the youtube embed code.
+        $stream_wrapper = new ResourcesYouTubeStreamWrapper();
+        if ($stream_wrapper) {
+          $parsed_url = drupal_parse_url($item['video_url']);
+          $uri = 'youtube://v/' . $parsed_url['query']['v'];
+          $stream_wrapper->setUri($uri);
+          // Build the thumbnail.
+          $thumbnail = array(
+            'style_name' => $display['settings']['image_style'],
+            'path' => $stream_wrapper->getLocalThumbnailPath($uri),
+            'alt' => '',  //$item['alt'],
+            'title' => '', //$item['title'],
+            'width' => '',
+            'height' => '',
+          );
+          // Wrap the image in a link to trigger fancybox.
+          $rendered_thumbnail = array(
+            '#type' => 'link',
+            '#title' => theme_image_style($thumbnail),
+            '#href' => $embed,
+            '#options' => array(
+              'html' => TRUE,
+              'query' => array(
+                'autoplay' => 1,
+              ),
+              'attributes' => array(
+                'class' => array(
+                  'fancybox',
+                  'fancybox.iframe',
+                  'gsb-video-preview',
+                ),
+              ),
+            ),
+          );
+        }
+        if ($rendered_thumbnail) {
+          $element[$delta] = array(
+            '#type' => 'container',
+            '#attributes' => array(
+              'class' => array(
+                'gsb-image-video-popup',
+              ),
+            ),
+          );
+          $element[$delta]['thumbnail'] = array(
+            '#type' => 'container',
+            '#attributes' => array(
+              'class' => array(
+                'gsb-image-video-popup-thumbnail',
+              ),
+            ),
+            'item' => $rendered_thumbnail,
+          );
+        }
       }
       break;
     case 'gsb_field_formatter_image_or_video_popup':
@@ -716,6 +803,18 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
           '#token_types' => 'all',
         );
       }
+      break;
+    case 'gsb_field_formatter_video_lightbox':
+      // Spoof the file_rendered formatter.
+      $display['type'] = 'file_rendered';
+      $image_styles = image_style_options(FALSE);
+      $element['image_style'] = array(
+        '#title' => t('Image style of the thumbnail'),
+        '#type' => 'select',
+        '#default_value' => $settings['image_style'],
+        '#empty_option' => t('None (original image)'),
+        '#options' => $image_styles,
+      );
       break;
     case 'gsb_field_formatter_image_or_video_popup':
       // Spoof the file_rendered formatter.
