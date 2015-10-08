@@ -220,10 +220,12 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       }
       break;
     case 'gsb_field_formatter_video_lightbox':
+      // Renders YouTube thumbnail image, and a video player in a lightbox
       foreach ($items as $delta => $item) {
         // Wrap the image in a link to trigger fancybox.
+        $video_id = _gsb_field_formatter_get_video_id($item['video_url']);
         $video_parts = drupal_parse_url($item['video_url']);
-        $embed = str_replace('watch', 'embed', $video_parts['path']) . '/' . $video_parts['query']['v'];
+        $embed = str_replace('watch', 'embed', $video_parts['path']) . '/' . $video_id;
         $rendered_video = array(
           '#type' => 'link',
           '#title' => '',
@@ -252,8 +254,8 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           $thumbnail = array(
             'style_name' => $display['settings']['image_style'],
             'path' => $stream_wrapper->getLocalThumbnailPath($uri),
-            'alt' => '',  //$item['alt'],
-            'title' => '', //$item['title'],
+            'alt' => '',
+            'title' => '',
             'width' => '',
             'height' => '',
           );
@@ -295,6 +297,28 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             ),
             'item' => $rendered_thumbnail,
           );
+          // Render Video viewCount
+          $data = _gsb_field_formatter_get_video_statistics($video_id);
+          if ($data) {
+            $data = drupal_json_decode($data);
+            if (!empty($data['items'][0]['statistics']['viewCount'])) {
+              $element[$delta]['viewcount'] = array(
+                '#markup' => t('<div class="""video-viewcount">'.$data['items'][0]['statistics']['viewCount'].'</div>'),
+              );
+            }
+          }
+          // Render Video duration
+          $data = _gsb_field_formatter_get_video_contentdetails($video_id);
+          if ($data) {
+            $data = drupal_json_decode($data);
+            if (!empty($data['items'][0]['contentDetails']['duration'])) {
+              $duration = $data['items'][0]['contentDetails']['duration'];
+              $duration = _gsb_field_formatter_convert_time($duration);
+              $element[$delta]['duration'] = array(
+                '#markup' => t('<div class="video-duration">'.$duration.'</div>'),
+              );
+            }
+          }
         }
       }
       break;
@@ -1195,3 +1219,57 @@ function gsb_field_formatter_field_collection_is_empty_alter(&$is_empty, $item) 
       }
   }
 }
+
+/**
+ * Call Google to get video statistics for the video: $video_id
+ */
+function _gsb_field_formatter_get_video_statistics($video_id) {
+  $google_browser_api_key = variable_get('video_embed_field_youtube_v3_api_key', '');
+  $google_api_url = 'https://www.googleapis.com/youtube/v3/videos?';
+  $data = null;
+  $result = drupal_http_request($google_api_url . 'part=statistics' . '&key=' . $google_browser_api_key .'&id=' . $video_id);
+  if ($result->code == 200) {
+    $data = $result->data;
+  }
+  return $data;
+}
+
+/**
+ * Call Google to get video statistics for the video: $video_id
+ */
+function _gsb_field_formatter_get_video_contentdetails($video_id) {
+  $google_browser_api_key = variable_get('video_embed_field_youtube_v3_api_key', '');
+  $google_api_url = 'https://www.googleapis.com/youtube/v3/videos?';
+  $data = null;
+  $result = drupal_http_request($google_api_url . 'part=contentDetails' . '&key=' . $google_browser_api_key .'&id=' . $video_id);
+  if ($result->code == 200) {
+    $data = $result->data;
+  }
+  return $data;
+}
+
+/**
+ * Get the video id from the video url.
+ */
+function _gsb_field_formatter_get_video_id($video_url) {
+  $video_parts = drupal_parse_url($video_url);
+  $video_id = '';
+  if (!empty($video_parts['query']['v'])) {
+    $video_id = $video_parts['query']['v'];
+  }
+  return $video_id;
+}
+
+function _gsb_field_formatter_convert_time($duration) {
+  preg_match_all('/(\d+)/',$duration,$parts);
+  $hours = $parts[0][0];
+  $minutes = $parts[0][1];
+  $seconds = $parts[0][2];
+  if ($seconds != 0) {
+    return $hours.':'.$minutes.':'.$seconds;
+  }
+  else {
+    return $hours.':'.$minutes;
+  }
+}
+
