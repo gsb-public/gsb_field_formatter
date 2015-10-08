@@ -319,6 +319,16 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
               );
             }
           }
+          // Render Video channel title
+          $data =_gsb_field_formatter_get_video_snippet($video_id);
+          if ($data) {
+            $data = drupal_json_decode($data);
+            if (!empty($data['items'][0]['snippet']['channelTitle'])) {
+              $element[$delta]['channelTitle'] = array(
+                '#markup' => t('<div class="video-duration">'.$data['items'][0]['snippet']['channelTitle'].'</div>'),
+              );
+            }
+          }
         }
       }
       break;
@@ -1218,6 +1228,20 @@ function gsb_field_formatter_field_collection_is_empty_alter(&$is_empty, $item) 
         break;
       }
   }
+}
+
+/**
+ * Call Google to get video snippet info for the video: $video_id
+ */
+function _gsb_field_formatter_get_video_snippet($video_id) {
+  $google_browser_api_key = variable_get('video_embed_field_youtube_v3_api_key', '');
+  $google_api_url = 'https://www.googleapis.com/youtube/v3/videos?';
+  $data = null;
+  $result = drupal_http_request($google_api_url . 'part=snippet' . '&key=' . $google_browser_api_key .'&id=' . $video_id);
+  if ($result->code == 200) {
+    $data = $result->data;
+  }
+  return $data;
 }
 
 /**
