@@ -297,16 +297,6 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             ),
             'item' => $rendered_thumbnail,
           );
-          // Render Video viewCount
-          $data = _gsb_field_formatter_get_video_statistics($video_id);
-          if ($data) {
-            $data = drupal_json_decode($data);
-            if (!empty($data['items'][0]['statistics']['viewCount'])) {
-              $element[$delta]['viewcount'] = array(
-                '#markup' => t('<div class="""video-viewcount">'.$data['items'][0]['statistics']['viewCount'].'</div>'),
-              );
-            }
-          }
           // Render Video duration
           $data = _gsb_field_formatter_get_video_contentdetails($video_id);
           if ($data) {
@@ -319,13 +309,23 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
               );
             }
           }
+          // Render Video viewCount
+          $data = _gsb_field_formatter_get_video_statistics($video_id);
+          if ($data) {
+            $data = drupal_json_decode($data);
+            if (!empty($data['items'][0]['statistics']['viewCount'])) {
+              $element[$delta]['viewcount'] = array(
+                '#markup' => t('<div class="video-viewcount">'.$data['items'][0]['statistics']['viewCount'].'</div>'),
+              );
+            }
+          }
           // Render Video channel title
           $data =_gsb_field_formatter_get_video_snippet($video_id);
           if ($data) {
             $data = drupal_json_decode($data);
             if (!empty($data['items'][0]['snippet']['channelTitle'])) {
               $element[$delta]['channelTitle'] = array(
-                '#markup' => t('<div class="video-duration">'.$data['items'][0]['snippet']['channelTitle'].'</div>'),
+                '#markup' => t('<div class="video-attribution">'.$data['items'][0]['snippet']['channelTitle'].'</div>'),
               );
             }
           }
