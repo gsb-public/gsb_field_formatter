@@ -223,9 +223,11 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       // Renders YouTube thumbnail image, and a video player in a lightbox
       foreach ($items as $delta => $item) {
         // Wrap the image in a link to trigger fancybox.
-        $video_id = _gsb_field_formatter_get_video_id($item['video_url']);
+        $uri = resources_resource_youtube_parse($item['video_url']);
+        $stream_wrapper = new ResourcesYouTubeStreamWrapper();
+        $stream_wrapper->setUri($uri);
         $video_parts = drupal_parse_url($item['video_url']);
-        $embed = str_replace('watch', 'embed', $video_parts['path']) . '/' . $video_id;
+        $embed = str_replace('watch?v=', 'embed/', $stream_wrapper->interpolateUrl());
         $rendered_video = array(
           '#type' => 'link',
           '#title' => '',
@@ -234,6 +236,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             'html' => TRUE,
             'query' => array(
               'autoplay' => 1,
+              't' => $video_parts['query']['t'],
             ),
             'attributes' => array(
               'class' => array(
@@ -245,11 +248,8 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           ),
         );
         // Get the youtube embed code.
-        $stream_wrapper = new ResourcesYouTubeStreamWrapper();
+
         if ($stream_wrapper) {
-          $parsed_url = drupal_parse_url($item['video_url']);
-          $uri = 'youtube://v/' . $parsed_url['query']['v'];
-          $stream_wrapper->setUri($uri);
           // Build the thumbnail.
           $thumbnail = array(
             'style_name' => $display['settings']['image_style'],
@@ -268,6 +268,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
               'html' => TRUE,
               'query' => array(
                 'autoplay' => 1,
+                't' => $video_parts['query']['t'],
               ),
               'attributes' => array(
                 'class' => array(
@@ -1206,6 +1207,10 @@ function _gsb_field_formatter_get_video_id($video_url) {
   $video_id = '';
   if (!empty($video_parts['query']['v'])) {
     $video_id = $video_parts['query']['v'];
+  }
+  else if (strpos($video_parts['path'], 'youtu.be')) {
+    $pos = strpos($video_parts['path'], 'youtu.be');
+    $video_id = substr($video_parts['path'], $pos + strlen('youtu.be') + 1);
   }
   return $video_id;
 }
