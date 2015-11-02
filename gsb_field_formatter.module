@@ -260,6 +260,14 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             'height' => '',
           );
           // Wrap the image in a link to trigger fancybox.
+          $start = 0;
+          if (!empty($video_parts['query']['t'])) {
+            $start = trim($video_parts['query']['t'],'s');
+            if (strpos($start, 'm')) {
+              $start = explode('m', $start);
+              $start = $start[0] * 60 + $start[1];
+            }
+          }
           $rendered_thumbnail = array(
             '#type' => 'link',
             '#title' => theme_image_style($thumbnail),
@@ -268,7 +276,6 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
               'html' => TRUE,
               'query' => array(
                 'autoplay' => 1,
-                't' => $video_parts['query']['t'],
               ),
               'attributes' => array(
                 'class' => array(
@@ -276,6 +283,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
                   'fancybox.iframe',
                   'gsb-video-preview',
                 ),
+                'data-fancybox-settings' => '{ "youtube": { "autoplay": 1, "start": ' . $start . '} }',
               ),
             ),
           );
@@ -1215,4 +1223,9 @@ function _gsb_field_formatter_get_video_id($video_url) {
   return $video_id;
 }
 
+
+function gsb_field_formatter_fancybox_settings_alter(&$options, &$helpers, $context) {
+  $helpers['media'] = true;
+  $options['youtube'] = array('autoplay' => 1, 'start' => 0);
+}
 
