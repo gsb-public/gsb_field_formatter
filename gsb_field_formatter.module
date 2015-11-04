@@ -340,7 +340,8 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           }
           // Handle Vimeo videos.
           elseif ($item['filemime'] == 'video/vimeo') {
-            $video_id = end(explode('/', $path));
+            $vparts = explode('/', $path);
+            $video_id = end($vparts);
             $embed = 'https://player.vimeo.com/video/';
             // switch to https if needed
             $pos = strpos($base_url, 'https');
