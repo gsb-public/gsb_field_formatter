@@ -370,6 +370,18 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             ),
           );
         }
+        //Handle diptych right image
+       if ($entity->bundle == 'diptych'){
+         $render_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, array($item), $display);
+         $render_element = array(
+           '#type' => 'link',
+           '#title' => drupal_render($render_element[$delta]['file']),
+           '#href' => $entity->field_diptych_right_cta_link['und'][0]['url'],
+           '#options' => array(
+             'html' => TRUE,
+           ),
+         );
+       }
         if ($render_element) {
           $element[$delta] = array(
             '#type' => 'container',
