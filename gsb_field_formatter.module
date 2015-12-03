@@ -311,8 +311,6 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       break;
     case 'gsb_field_formatter_image_or_video_popup':
       // Spoof the file_rendered formatter.
-      //dpm($entity);
-      //dpm($items);
       $display['type'] = 'file_rendered';
       if ($_GET['q'] == 'home') {
         $display['settings']['file_view_mode'] = 'gsb_slideshow_small';
@@ -375,7 +373,6 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         //Handle diptych right image
        if ($entity->bundle == 'diptych' && $entity->field_file_single_public['und'][0]['filemime'] != 'video/youtube'){
          $render_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, array($item), $display);
-         dpm($render_element);
          $render_element = array(
            '#type' => 'link',
            '#title' => drupal_render($render_element[$delta]['file']),
