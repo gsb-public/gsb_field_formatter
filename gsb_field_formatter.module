@@ -379,7 +379,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
            '#href' => $entity->field_diptych_right_cta_link['und'][0]['url'],
            '#options' => array(
              'html' => TRUE,
-             'attributes' => ($entity->field_link_single['und'][0]['attributes']['target']['checked']) ? array(
+             'attributes' => ($entity->field_diptych_right_cta_link[und][0][attributes][target]['checked']) ? array(
              'target' => '_blank',
              ) : array(),
            ),
