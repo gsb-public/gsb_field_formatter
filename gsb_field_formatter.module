@@ -236,7 +236,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             'html' => TRUE,
             'query' => array(
               'autoplay' => 1,
-              't' => $video_parts['query']['t'],
+              'v' => $video_parts['query']['v'],
             ),
             'attributes' => array(
               'class' => array(
