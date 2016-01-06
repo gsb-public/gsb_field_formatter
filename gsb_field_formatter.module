@@ -371,15 +371,19 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
           );
         }
         //Handle diptych right image
-       if ($entity->bundle == 'diptych' && $entity->field_file_single_public['und'][0]['filemime'] != 'video/youtube'){
+       if ($entity->bundle == 'diptych' && $entity->field_file_single_public['und'][0]['filemime'] != 'video/youtube') {
          $render_element = file_entity_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, array($item), $display);
+         $target = false;
+         if (sizeof($entity->field_diptych_right_cta_link['und'][0]['attributes']) != 0) {
+          $target = $entity->field_diptych_right_cta_link['und'][0]['attributes']['target']['checked'];
+         }
          $render_element = array(
            '#type' => 'link',
            '#title' => drupal_render($render_element[$delta]['file']),
            '#href' => $entity->field_diptych_right_cta_link['und'][0]['url'],
            '#options' => array(
              'html' => TRUE,
-             'attributes' => ($entity->field_diptych_right_cta_link[und][0][attributes][target]['checked']) ? array(
+             'attributes' => ($target) ? array(
              'target' => '_blank',
              ) : array(),
            ),
