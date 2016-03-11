@@ -1135,8 +1135,15 @@ function gsb_field_formatter_field_group_format_settings($group) {
  * #pre_render for gsb_field_formatter_group_link_to_field.
  */
 function field_group_pre_render_gsb_field_formatter_group_link_to_field(&$element, $group, &$form) {
-  if (isset($group->format_settings['instance_settings']['field_name']) && isset($form['#'. $group->entity_type])) {
-    $wrapper = entity_metadata_wrapper($group->entity_type, $form['#'. $group->entity_type]);
+  if (isset($group->format_settings['instance_settings']['field_name']) && (isset($form['#'. $group->entity_type]) || isset($form['#entity']))) {
+    $entity = null;
+    if (isset($form['#entity'])) {
+      $entity = $form['#entity'];
+    }
+    else if (isset($form['#'. $group->entity_type])) {
+      $entity = $form['#'. $group->entity_type];
+    }
+    $wrapper = entity_metadata_wrapper($group->entity_type, $entity);
     $field_name = $group->format_settings['instance_settings']['field_name'];
     try {
       $wrapper_field = $wrapper->{$field_name};
