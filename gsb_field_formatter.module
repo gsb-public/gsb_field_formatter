@@ -227,6 +227,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         $stream_wrapper = new ResourcesYouTubeStreamWrapper();
         $stream_wrapper->setUri($uri);
         $video_parts = drupal_parse_url($item['video_url']);
+        $query_v = !empty($video_parts['query']['v']) ? $video_parts['query']['v'] : '';
         $embed = str_replace('watch?v=', 'embed/', $stream_wrapper->interpolateUrl());
         $rendered_video = array(
           '#type' => 'link',
@@ -236,7 +237,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             'html' => TRUE,
             'query' => array(
               'autoplay' => 1,
-              'v' => $video_parts['query']['v'],
+              'v' => $query_v,
             ),
             'attributes' => array(
               'class' => array(
