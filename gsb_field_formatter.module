@@ -230,7 +230,6 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         $query_v = !empty($video_parts['query']['v']) ? $video_parts['query']['v'] : '';
         $embed = str_replace('watch?v=', 'embed/', $stream_wrapper->interpolateUrl());
         $protocol = file_uri_scheme($embed);
-        $protocol = 'https';
         if ($protocol != $GLOBALS['_SERVER']['REQUEST_SCHEME']) {
           if (stristr($protocol,'https')) {
             $embed = str_replace('https://', 'http://', $embed);
