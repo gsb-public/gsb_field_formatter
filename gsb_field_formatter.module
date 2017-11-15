@@ -94,6 +94,7 @@ function gsb_field_formatter_field_formatter_info() {
         'tid_or_name' => 'tid',
         'path_prefix' => 'taxonomy/term/',
         'limit_depth' => FALSE,
+        'link_to_term' => TRUE,
       ),
     ),
     'gsb_field_formatter_image' => array(
@@ -654,9 +655,13 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             continue;
           }
         }
-        module_load_include('inc', 'pathauto');
-        $path = $settings['path_prefix'] . pathauto_cleanstring($term->{$settings['tid_or_name']});
-        $element[$delta]['#markup'] = '<a href="' . base_path() . $path . '">' . check_plain($term->name) . '</a>';
+        if (!$settings['link_to_term']) {
+          $element[$delta]['#markup'] = check_plain($term->name);
+        } else {
+          module_load_include('inc', 'pathauto');
+          $path = $settings['path_prefix'] . pathauto_cleanstring($term->{$settings['tid_or_name']});
+          $element[$delta]['#markup'] = '<a href="' . base_path() . $path . '">' . check_plain($term->name) . '</a>';
+        }
         if ($delta != $count - 1) {
           $element[$delta]['#suffix'] = '<span class="separator">' . check_plain($settings['separator']) . '</span>';
         }
@@ -902,6 +907,11 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
       break;
 
     case 'gsb_field_formatter_path_term_separator':
+      $element['link_to_term'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Link to term'),
+        '#default_value' => $settings['link_to_term'],
+      );
       $element['path_prefix'] = array(
         '#type' => 'textfield',
         '#title' => t('Path prefix'),
@@ -1035,6 +1045,7 @@ function gsb_field_formatter_field_formatter_settings_summary($field, $instance,
 
     case 'gsb_field_formatter_path_term_separator':
       $output[] = t('Separator: "%separator"', array('%separator' => $settings['separator']));
+      $output[] = t('Link to term: "%link_to_term"', array('%link_to_term' => $settings['link_to_term']  ? t('Yes') : t('No')));
       $output[] = t('Path: %path', array('%path' => $settings['path_prefix'] . '$term->' . $settings['tid_or_name']));
       $output[] = t('Depth limited: %limit', array('%limit' => $settings['limit_depth'] ? t('Yes') : t('No')));
 
