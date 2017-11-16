@@ -66,6 +66,13 @@ function gsb_field_formatter_field_formatter_info() {
         'hide_usa_country' => TRUE,
       ),
     ),
+    'gsb_field_formatter_twitter_handle' => array(
+      'label' => t('Twitter Handle as a Link'),
+      'field types' => array('text'),
+      'settings' => array(
+        'text' => t('Twitter'),
+      ),
+    ),
     'gsb_field_formatter_spotlight_fid_to_image' => array(
       'label' => t('Spotlight FID to Image'),
       'field types' => array('text', 'number_integer'),
@@ -519,6 +526,14 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       }
       break;
 
+    case 'gsb_field_formatter_twitter_handle':
+      if (!empty($entity->field_has_twitter_handle['und'][0]) && !empty($entity->field_has_twitter_handle['und'][0]['value'] == '1')) {
+        foreach ($items as $delta => $item) {
+          $element[$delta]['#markup'] = '<a href="https://twitter.com/@' . $item['value'] . '">' . $settings['text'] . '</a>';
+        }
+      }
+      break;
+
     case 'gsb_field_formatter_spotlight_fid_to_image':
       foreach ($items as $delta => $item) {
         if ($file = file_load($item['value'])) {
@@ -838,6 +853,14 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
   $display = &$instance['display'][$view_mode];
   $settings = $display['settings'];
   switch ($display['type']) {
+    case 'gsb_field_formatter_twitter_handle':
+      $element['text'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Link text'),
+        '#default_value' => $settings['text'],
+        '#required' => TRUE,
+      );
+      break;
     case 'gsb_field_formatter_download_link':
       $element['text'] = array(
         '#type' => 'textfield',
@@ -1022,6 +1045,10 @@ function gsb_field_formatter_field_formatter_settings_summary($field, $instance,
   $display = &$instance['display'][$view_mode];
   $settings = $display['settings'];
   switch ($display['type']) {
+
+    case 'gsb_field_formatter_twitter_handle':
+      $summary = 'Link text: ' . $settings['text'];
+      break;
 
     case 'gsb_field_formatter_download_link':
       $summary = 'Link text: ' . $settings['text'];
