@@ -71,6 +71,7 @@ function gsb_field_formatter_field_formatter_info() {
       'field types' => array('text'),
       'settings' => array(
         'text' => t('Twitter'),
+        'view_mode' => t(''),
       ),
     ),
     'gsb_field_formatter_spotlight_fid_to_image' => array(
@@ -529,7 +530,16 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
     case 'gsb_field_formatter_twitter_handle':
       if (!empty($entity->field_has_twitter_handle['und'][0]) && !empty($entity->field_has_twitter_handle['und'][0]['value'] == '1')) {
         foreach ($items as $delta => $item) {
-          $element[$delta]['#markup'] = '<a href="https://twitter.com/@' . $item['value'] . '">' . $settings['text'] . '</a>';
+          $view_mode = '';
+          if (!empty($settings['view_mode'])) {
+            $view_mode = $settings['view_mode'];
+          }
+          if ($view_mode == 'people_fpp') {
+            $element[$delta]['#markup'] = '<a href="https://twitter.com/@' . $item['value'] . '" class="twitter-handle-text">' . '@' . $item['value'] . '</a>';
+          }
+          else {
+            $element[$delta]['#markup'] = '<a href="https://twitter.com/@' . $item['value'] . '">' . $settings['text'] . '</a>';
+          }
         }
       }
       break;
@@ -860,6 +870,12 @@ function gsb_field_formatter_field_formatter_settings_form($field, $instance, $v
         '#default_value' => $settings['text'],
         '#required' => TRUE,
       );
+      $element['view_mode'] = array(
+        '#type' => 'textfield',
+        '#title' => t('View Mode'),
+        '#default_value' => $settings['view_mode'],
+        '#required' => FALSE,
+      );
       break;
     case 'gsb_field_formatter_download_link':
       $element['text'] = array(
@@ -1047,7 +1063,8 @@ function gsb_field_formatter_field_formatter_settings_summary($field, $instance,
   switch ($display['type']) {
 
     case 'gsb_field_formatter_twitter_handle':
-      $summary = 'Link text: ' . $settings['text'];
+      $view_mode = empty($settings['view_mode']) ? '' : $settings['view_mode'];
+      $summary = 'Link text: ' . $settings['text'] . ' View Mode: ' . $view_mode;
       break;
 
     case 'gsb_field_formatter_download_link':
