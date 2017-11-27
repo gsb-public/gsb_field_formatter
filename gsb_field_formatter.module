@@ -535,10 +535,10 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             $view_mode = $settings['view_mode'];
           }
           if ($view_mode == 'people_fpp') {
-            $element[$delta]['#markup'] = '<a href="https://twitter.com/@' . $item['value'] . '" class="twitter-handle-text">' . '@' . $item['value'] . '</a>';
+            $element[$delta]['#markup'] = '<a href="https://twitter.com/@' . $item['value'] . '" class="twitter-handle-text" target="_blank">' . '@' . $item['value'] . '</a>';
           }
           else {
-            $element[$delta]['#markup'] = '<a href="https://twitter.com/@' . $item['value'] . '">' . $settings['text'] . '</a>';
+            $element[$delta]['#markup'] = '<a href="https://twitter.com/@' . $item['value'] . '" target="_blank">' . $settings['text'] . '</a>';
           }
         }
       }
