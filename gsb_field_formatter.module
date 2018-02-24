@@ -629,16 +629,16 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
             ),
           ),
         );
-	      if (!empty($item['query'])) {
-		      $element[$delta]['#options'] = array(
-				      'query' => $item['query']
-		      );
-	      }
-	      if (!empty($item['fragment'])) {
-		      $element[$delta]['#options'] = array(
-				      'fragment' => $item['fragment']
-		      );
-	      };
+        if (!empty($item['query'])) {
+          $element[$delta]['#options'] = array(
+              'query' => $item['query']
+          );
+        }
+        if (!empty($item['fragment'])) {
+          $element[$delta]['#options'] = array(
+              'fragment' => $item['fragment']
+          );
+        };
       }
       break;
 
