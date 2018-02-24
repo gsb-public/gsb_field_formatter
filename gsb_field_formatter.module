@@ -240,7 +240,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         $embed = str_replace('watch?v=', 'embed/', $stream_wrapper->interpolateUrl());
         $protocol = file_uri_scheme($embed);
         $server_scheme = 'http';
-        if ($GLOBALS['_SERVER']['HTTPS'] == 'on') {
+        if (isset($GLOBALS['_SERVER']['HTTPS']) && $GLOBALS['_SERVER']['HTTPS'] == 'on') {
           $server_scheme = 'https';
         }
         if ($protocol != $server_scheme) {
