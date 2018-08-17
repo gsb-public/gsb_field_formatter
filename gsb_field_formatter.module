@@ -217,7 +217,10 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       }
       break;
     case 'gsb_field_formatter_download_link':
-      if (!empty($items[0])) {
+      if (!empty($entity->field_download_brochure_link) && $entity->field_brochure_options['und'][0]['value'] == 'brochure_link_other') {
+        $element[]['#markup'] = '<a href="' . $entity->field_download_brochure_link['und'][0]['url'] . '" class="brochure-link-other" target="_blank">' . 'Download Brochure' . '</a>';
+      }
+      else if (!empty($items[0])) {
         $file = $items[0];
 
         // Support token replacement.
