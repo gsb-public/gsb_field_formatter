@@ -236,6 +236,9 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       foreach ($items as $delta => $item) {
         // Wrap the image in a link to trigger fancybox.
         $uri = resources_resource_youtube_parse($item['video_url']);
+        if ($uri == null) {
+          continue;
+        }
         $stream_wrapper = new ResourcesYouTubeStreamWrapper();
         $stream_wrapper->setUri($uri);
         $video_parts = drupal_parse_url($item['video_url']);
