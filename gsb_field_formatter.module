@@ -105,6 +105,14 @@ function gsb_field_formatter_field_formatter_info() {
         'link_to_term' => TRUE,
       ),
     ),
+    'gsb_field_formatter_landing_page_video' => array(
+      'label' => t('Landing Page Video'),
+      'description' => t('Display a video on the landing page'),
+      'field types' => array('file'),
+      'settings' => array(
+        'file_view_mode' => 'default',
+      ),
+    ),
     'gsb_field_formatter_image' => array(
       'label' => t('GSB Image'),
       'description' => t('Display the image in a specific view mode'),
@@ -704,6 +712,23 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         if ($delta != $count - 1) {
           $element[$delta]['#suffix'] = '<span class="separator">' . check_plain($settings['separator']) . '</span>';
         }
+      }
+      break;
+    case 'gsb_field_formatter_landing_page_video':
+      $count = count($items);
+      foreach ($items as $delta => $item) {
+        $content = <<<EOF
+          <video class="splash__video__media" autoplay muted loop playsinline>
+            <source src="<landing-page-video-file-path-goes-here>" type="video/mp4">
+          </video>
+EOF;
+        $url = file_create_url($item['uri']);
+        $pos = strpos($base_url, 'https');
+        if ($pos !== false) {
+          $url = str_replace("http://", "https://", $url);
+        }
+        $content = str_replace("<landing-page-video-file-path-goes-here>", $url, $content);
+        $element[$delta]['#markup'] = $content;
       }
       break;
     case 'gsb_field_formatter_image':
