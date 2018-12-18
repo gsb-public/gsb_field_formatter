@@ -113,6 +113,14 @@ function gsb_field_formatter_field_formatter_info() {
         'file_view_mode' => 'default',
       ),
     ),
+    'gsb_field_formatter_landing_page_kaltura_video' => array(
+      'label' => t('Landing Page Kaltura Video'),
+      'description' => t('Display a Kaltura video on the landing page'),
+      'field types' => array('text'),
+      'settings' => array(
+        'file_view_mode' => 'default',
+      ),
+    ),
     'gsb_field_formatter_image' => array(
       'label' => t('GSB Image'),
       'description' => t('Display the image in a specific view mode'),
@@ -711,6 +719,44 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
         }
         if ($delta != $count - 1) {
           $element[$delta]['#suffix'] = '<span class="separator">' . check_plain($settings['separator']) . '</span>';
+        }
+      }
+      break;
+    case 'gsb_field_formatter_landing_page_kaltura_video':
+      if (!empty($items) && !empty($items[0]["value"])) {
+        foreach ($items as $delta => $item) {
+          $kaltura_video_id = $items[0]["value"];
+      $content = <<<EOF
+<script src="//cdnapisec.kaltura.com/p/243342/sp/24334200/embedIframeJs/uiconf_id/43211942/partner_id/2063281/entry_id/<kaltura-video-id>?entry_id=<kaltura-video-id>"></script>      
+<div style="width: 1000px;display: inline-block;position: relative;"> 
+	<div id="dummy" style="margin-top: 56.25%;"></div>
+	<div id="kaltura-player1" style="position:absolute;top:0;left:0;left: 0;right: 0;bottom:-36px;border:solid thin black;" itemprop="video" itemscope itemtype="http://schema.org/VideoObject">
+	</div>
+</div>
+<script>
+  kWidget.embed({
+    'targetId': 'kaltura-player1',
+    'wid': '_2063281',
+    'uiconf_id' : '43211942',
+    'entry_id' : '<kaltura-video-id>',
+    'autoplay' : true,
+    'automute' : true,
+    'uiVars': [{
+      'autoplay' : true,
+      'loop' : true,
+      'automute' : true
+    }],
+    'flashvars' : {  
+      'autoMute' : true,
+      'autoPlay' : true,
+      'inlineScript' : false,			
+      'loop' : true
+    },
+  });
+</script>
+EOF;
+          $content = str_replace("<kaltura-video-id>", $kaltura_video_id, $content);
+          $element[$delta]['#markup'] = $content;
         }
       }
       break;
