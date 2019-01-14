@@ -729,7 +729,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
       $content = <<<EOF
 <script src="//cdnapisec.kaltura.com/p/243342/sp/24334200/embedIframeJs/uiconf_id/43211942/partner_id/2063281/entry_id/<kaltura-video-id>?entry_id=<kaltura-video-id>"></script>      
 <div id="landing-video"> 
-	<div id="kaltura-player1" style="position:absolute;top:0;left:0;left: 0;right: 0;bottom:-36px;" itemprop="video" itemscope itemtype="http://schema.org/VideoObject">
+	<div id="kaltura-player1" style="position:relative;top:0;left:0;left: 0;right: 0;bottom:-36px;" itemprop="video" itemscope itemtype="http://schema.org/VideoObject">
 	</div>
 </div>
 <script>
