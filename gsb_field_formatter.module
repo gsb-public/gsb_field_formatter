@@ -743,7 +743,7 @@ function gsb_field_formatter_field_formatter_view($entity_type, $entity, $field,
     'uiVars': [{
       'autoplay' : true,
       'loop' : true,
-      'automute' : true
+      'automute' : true,
       'EmbedPlayer.KeepPoster' : true,
     }],
     'flashvars' : {  
